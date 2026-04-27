@@ -1230,3 +1230,61 @@ Inspired by GitNexus-style repository knowledge graphs, this project now include
 - `@product-dev /code-wiki` — generate a durable code wiki that helps Copilot/OpenCode agents understand the repo.
 
 These commands work with the built-in repo scanner. If your team runs GitNexus CLI/MCP, attach/export GitNexus output or use MCP-enabled agents for deeper symbol/process graph evidence.
+
+
+## Requirement Management Pack
+
+v1.9 adds a dedicated requirement workflow that helps teams organize raw user demand before jumping into PRD or implementation.
+
+### Commands
+
+```text
+@product-dev /requirements
+@product-dev /requirements-intake
+@product-dev /requirements-clarify
+@product-dev /requirements-map
+@product-dev /requirements-prioritize
+@product-dev /requirements-review
+@product-dev /requirements-trace
+```
+
+### Recommended Workflow
+
+```text
+/requirements-intake -> /requirements-clarify -> /requirements-map -> /requirements-prioritize -> /requirements-review -> /requirements-trace -> /feature -> /prd
+```
+
+Full guide: `docs/REQUIREMENTS_WORKFLOW.md`.
+
+## v2.0 Backend API Test Generation
+
+This version adds backend-code-driven API test generation.
+
+### New commands
+
+```text
+@product-dev /backend-api-scan
+@product-dev /api-test-gen
+@product-dev /springboot-api-tests
+@product-dev /python-api-tests
+```
+
+### What it does
+
+- Reads Spring Boot controllers, mappings, DTOs, validation annotations, security annotations, and service-call hints.
+- Reads FastAPI / Flask routes, Pydantic/schema hints, dependencies, and service-call hints.
+- Generates API request examples: `.http`, cURL, HTTPie, Postman, and Insomnia.
+- Generates automated tests: Spring Boot MockMvc / RestAssured / JUnit 5, Python pytest / httpx / TestClient.
+- Writes artifacts under `docs/test/`.
+
+### Recommended workflow
+
+```text
+@product-dev /backend-api-scan
+@product-dev /springboot-api-tests 基于当前后端代码生成 API 测试请求和 JUnit 测试
+@product-dev /test
+@product-dev /quality
+@product-dev /review
+```
+
+See `docs/BACKEND_API_TEST_GENERATION_WORKFLOW.md`.

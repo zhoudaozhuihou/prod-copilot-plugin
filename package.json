@@ -1,8 +1,8 @@
 {
   "name": "company-product-dev-copilot",
-  "displayName": "Company Product Dev Copilot - Code Graph Intelligence Edition",
-  "description": "Enterprise VS Code Copilot Chat participant with GitNexus-inspired code graph intelligence, impact analysis, code wiki generation, diagram-aware SDLC workflows, Ralph PRD loops, OpenCode-compatible prompts/skills, DESIGN.md UI design, NL2SQL, SQL review, policy packs, and bank-grade data workflows.",
-  "version": "1.8.0",
+  "displayName": "Company Product Dev Copilot - Backend API Test Generation Edition",
+  "description": "Enterprise VS Code Copilot Chat participant with requirements, diagrams, SQL, data engineering, OpenCode-compatible skills, and backend-code-driven API test generation.",
+  "version": "2.0.0",
   "publisher": "company-internal",
   "license": "UNLICENSED",
   "engines": {
@@ -50,6 +50,34 @@
           {
             "name": "plan",
             "description": "Create an ordered delivery plan and recommended command sequence for the current task."
+          },
+          {
+            "name": "requirements",
+            "description": "One-shot organization of raw user demand into structured requirements, gaps, assumptions, and next workflow."
+          },
+          {
+            "name": "requirements-intake",
+            "description": "Collect and normalize raw stakeholder needs from user input, attachments, meeting notes, documents, and repository context."
+          },
+          {
+            "name": "requirements-clarify",
+            "description": "Ask targeted clarification questions to complete missing requirement background before design or development."
+          },
+          {
+            "name": "requirements-map",
+            "description": "Map business goals to user needs, capabilities, features, user stories, acceptance criteria, tasks, tests, and impacted artifacts."
+          },
+          {
+            "name": "requirements-prioritize",
+            "description": "Prioritize requirements using RICE, MoSCoW, Kano, compliance urgency, dependency order, cost, and risk."
+          },
+          {
+            "name": "requirements-review",
+            "description": "Review requirements for clarity, consistency, feasibility, testability, governance, data, security, and release readiness."
+          },
+          {
+            "name": "requirements-trace",
+            "description": "Generate requirement traceability matrix across PRD, stories, UI, API, backend, data, SQL, tests, release, and runbook artifacts."
           },
           {
             "name": "attachments",
@@ -190,6 +218,22 @@
           {
             "name": "api",
             "description": "Generate or validate API contract."
+          },
+          {
+            "name": "python-api-tests",
+            "description": "Generate FastAPI/Flask API request examples, .http files, cURL/Postman snippets, pytest/httpx tests from Python route and schema code."
+          },
+          {
+            "name": "springboot-api-tests",
+            "description": "Generate Spring Boot API request examples, .http files, cURL/Postman snippets, MockMvc/RestAssured/JUnit tests from Java controller and DTO code."
+          },
+          {
+            "name": "api-test-gen",
+            "description": "Generate API request examples and automated test cases by reading backend code logic, controllers/routes, DTOs/models, validation, security, and service branches."
+          },
+          {
+            "name": "backend-api-scan",
+            "description": "Read backend source code and summarize API endpoint, DTO, validation, security, and service logic evidence before test generation."
           },
           {
             "name": "review",

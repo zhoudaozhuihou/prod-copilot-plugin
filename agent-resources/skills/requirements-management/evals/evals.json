@@ -1,0 +1,8 @@
+{
+  "evals": [
+    {
+      "input": "整理一个模糊的用户需求",
+      "expected": "includes IDs, gaps, questions, mapping, priority and traceability"
+    }
+  ]
+}

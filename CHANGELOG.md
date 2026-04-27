@@ -1,3 +1,13 @@
+## 2.0.0 - Backend API Test Generation Edition
+
+- Added `/backend-api-scan`.
+- Added `/api-test-gen`.
+- Added `/springboot-api-tests`.
+- Added `/python-api-tests`.
+- Added static backend scanner for Spring Boot, FastAPI, and Flask route evidence.
+- Added backend API test generation skill, prompts, output schemas, Copilot prompts, and OpenCode commands.
+- Added `docs/BACKEND_API_TEST_GENERATION_WORKFLOW.md`.
+
 # Changelog
 
 ## 1.8.0 - Code Graph Intelligence Edition
@@ -148,3 +158,12 @@
 - Added `agent-resources/skills/subagent-orchestration/` and `agent-resources/prompts/commands/subagent-orchestration.md`.
 - Added subagent delegation guidance to every complex model-backed command.
 - Added OpenCode-compatible `.opencode/commands/subagent-plan.md` for future migration.
+
+## 1.9.0 - Requirement Workflow Edition
+
+- Added Requirement Management Pack commands: `/requirements`, `/requirements-intake`, `/requirements-clarify`, `/requirements-map`, `/requirements-prioritize`, `/requirements-review`, `/requirements-trace`.
+- Added requirement workflow documentation under `docs/REQUIREMENTS_WORKFLOW.md`.
+- Added portable prompts for Copilot/OpenCode migration and Anthropic-style `requirements-management` skill.
+- Updated ordered workflow so requirement intake/clarification/mapping/prioritization/review/traceability happen before feature design and PRD.
+- Added requirement outputs to diagram-aware schema and prompt optimization flow.
+

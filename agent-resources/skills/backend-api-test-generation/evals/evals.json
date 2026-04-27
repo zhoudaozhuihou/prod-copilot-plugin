@@ -1,0 +1,21 @@
+[
+  {
+    "input": "Generate Spring Boot API tests from controller code",
+    "must_include": [
+      "MockMvc",
+      "DTO",
+      "validation",
+      "auth",
+      "negative cases"
+    ]
+  },
+  {
+    "input": "Generate FastAPI test requests",
+    "must_include": [
+      "pytest",
+      "httpx",
+      "Pydantic",
+      "TestClient"
+    ]
+  }
+]

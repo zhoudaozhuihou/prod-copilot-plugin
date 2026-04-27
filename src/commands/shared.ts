@@ -1,95 +1,252 @@
-/**
- * Product Dev Copilot Source Note
- *
- * File: src/commands/shared.ts
- * Purpose: Reusable execution pipeline for AI artifact commands: scan repo, load policies, compile prompt, call model, write output.
- *
- * Usage rules:
- * - Keep business-specific thresholds and local governance rules out of source code.
- * - Put company/department/country/project/environment rules in .product-dev/policy-packs/.
- * - Keep command outputs deterministic, reviewable, and written to repository artifacts whenever possible.
- * - For banking/data workflows, always preserve traceability, privacy, auditability, rollback, and human review.
- */
-
-import { CommandArgs, ProductDevCommand, CommandResult } from '../core/types';
+import * as fs from 'fs/promises';
+import * as path from 'path';
 import { generateWithLanguageModel } from '../ai/language-model';
-import { readGitContext } from '../context/git-context';
-import { scanRepository } from '../context/repo-scanner';
-import { getWorkspaceRoot } from '../context/workspace';
-import { compilePrompt } from '../prompt/prompt-compiler';
-import { writeArtifact } from '../writers/artifact-writer';
-import { logInfo } from '../utils/logger';
-import { getNextStepHint } from '../workflow/workflow';
-import { optimizeUserInput, renderOptimizedUserInput } from '../prompt/user-input-optimizer';
-import { loadApplicableSkills, renderSkillsForPrompt } from '../skills/skill-loader';
-import { loadPortablePromptContext } from '../resources/portable-resource-loader';
+import { scanBackendApiSignals } from '../backend/api-code-scanner';
+import { CommandArgs, CommandResult, PromptPackage } from '../core/types';
 import { renderRequestContext } from '../context/request-context';
-import { renderSubagentGuidance } from '../subagents/subagent-orchestrator';
+import { artifactPathFor, getNextStepHint } from '../workflow/workflow';
 
-/**
- * Standard AI artifact command pipeline.
- *
- * Most slash commands are intentionally thin wrappers around this function.
- * This keeps behavior consistent across product, frontend, backend, and data commands:
- *
- * 1. Locate the active workspace.
- * 2. Scan repository context.
- * 3. Add git context only for commands that need change awareness.
- * 4. Compile a governed prompt with output schema and local Policy Pack context.
- * 5. Call the language model selected by Copilot Chat.
- * 6. Write a reviewable artifact to docs/.
- */
-export async function runAiArtifactCommand(args: CommandArgs, command: ProductDevCommand): Promise<CommandResult> {
-  // VS Code extensions can run with multiple workspace folders; this project uses the active root.
-  const workspaceRoot = getWorkspaceRoot();
-  args.stream.progress(`Scanning repository context for /${command}...`);
-  // Repository context is the main grounding source for the model.
-  // Keep scanner limits conservative so prompts remain useful and bounded.
-  const repo = await scanRepository(workspaceRoot);
+const SYSTEM_PROMPT = `You are a bank-grade AI SDLC assistant embedded in VS Code Copilot.
+Work as a precise product, engineering, test, and data-development consultant.
+Always preserve user constraints, project evidence, policy packs, security, auditability, privacy, traceability, rollback, and testability.
+For complex tasks, recommend subagent delegation when useful, but keep the main output consolidated and actionable.`;
 
-  // Git context is relatively expensive and noisy, so include it only for commands where
-  // changes, review, release readiness, migration, or lineage analysis are relevant.
-  const needsGit = ['review', 'doc-review', 'data-review', 'diff', 'release', 'test', 'data-test', 'quality', 'plan', 'migration', 'lineage', 'sql-review'].includes(command);
-  const git = needsGit ? await readGitContext(workspaceRoot) : undefined;
-  // Optimize every user request before prompt compilation.
-  // This normalizes vague input into goal/scope/constraints/missing questions/output expectations.
-  const optimized = optimizeUserInput(command, args.userPrompt, repo, args.requestContext);
-  const skills = await loadApplicableSkills(workspaceRoot, command, optimized);
-  const subagentGuidance = renderSubagentGuidance(command, optimized, repo);
-  const portablePromptContext = await loadPortablePromptContext(workspaceRoot, command);
-  const enrichedPrompt = [
-    args.userPrompt,
-    renderOptimizedUserInput(optimized),
-    renderRequestContext(args.requestContext),
-    subagentGuidance,
-    portablePromptContext,
-    renderSkillsForPrompt(skills)
-  ].join('\n\n');
+const DEFAULT_CONSTRAINTS = [
+  'Do not invent repository facts. Label assumptions clearly.',
+  'Use project policy packs, custom skills, attachments, and active editor context when available.',
+  'For backend API test generation, derive endpoints and request shapes from Controller/router, DTO/model, validation, security, exception, and service logic evidence.',
+  'For banking systems, include negative cases, authorization cases, audit/logging expectations, data privacy risks, and production-safe validation.'
+];
 
-  // PromptPackage is the internal contract between command handlers and model calls.
-  // It contains role, task, constraints, output schema, policy context, custom skills, and artifact path.
-  const promptPackage = compilePrompt(command, enrichedPrompt, repo, git);
+export async function runAiArtifactCommand(args: CommandArgs, command = args.command): Promise<CommandResult> {
+  const title = titleFor(command);
+  const outputPath = artifactPathFor(command);
+  const workspaceRoot = args.requestContext?.workspaceRoot;
+  const extraContext: string[] = [];
 
-  args.stream.progress(`Generating ${promptPackage.title}...`);
-  const markdown = await generateWithLanguageModel(promptPackage, args.request, args.token);
-  const artifactPath = await writeArtifact(repo, promptPackage.artifactPath, markdown);
-  logInfo(`Command /${command} completed. Artifact: ${artifactPath ?? 'not written'}`);
-  return { title: promptPackage.title, markdown, artifactPath, nextStepHint: promptPackage.nextStepHint };
+  if (isBackendApiTestCommand(command)) {
+    const scan = scanBackendApiSignals(workspaceRoot);
+    extraContext.push(scan.markdown);
+    await writeWorkspaceFile(workspaceRoot, 'docs/test/backend-api-code-scan.md', scan.markdown);
+  }
+
+  const promptPackage = await buildPromptPackage(args, command, title, extraContext.join('\n\n'));
+  const content = await generateWithLanguageModel(promptPackage, args.request, args.token);
+  await writeWorkspaceFile(workspaceRoot, outputPath, content);
+
+  return {
+    title,
+    artifactPath: outputPath,
+    content,
+    nextCommand: getNextStepHint(command)
+  };
 }
 
-/**
- * Render command result back into Copilot Chat.
- *
- * The artifact path is displayed first so users know where the durable output lives.
- * The final Suggested Next Step keeps the ordered workflow moving without forcing
- * users to remember the full command sequence.
- */
 export function streamResult(args: CommandArgs, result: CommandResult): void {
-  args.stream.markdown(`# ${result.title}\n\n`);
+  args.stream.markdown(result.content);
   if (result.artifactPath) {
-    args.stream.markdown(`✅ Artifact written: \`${result.artifactPath}\`\n\n`);
+    args.stream.markdown(`\n\n---\n\n📄 **Artifact written:** \`${result.artifactPath}\``);
   }
-  args.stream.markdown(result.markdown);
-  const next = result.nextStepHint ?? getNextStepHint(args.command);
-  args.stream.markdown(`\n\n---\n\n## Suggested Next Step\n\n${next}\n`);
+  if (result.nextCommand) {
+    args.stream.markdown(`\n\n➡️ **Next:** ${result.nextCommand}`);
+  }
+}
+
+export async function runLocalInfoCommand(args: CommandArgs, command = args.command): Promise<CommandResult> {
+  const content = localInfo(command, args);
+  const result = { title: titleFor(command), content, nextCommand: getNextStepHint(command) };
+  streamResult(args, result);
+  return result;
+}
+
+async function buildPromptPackage(args: CommandArgs, command: string, title: string, extraContext: string): Promise<PromptPackage> {
+  const commandPrompt = await readOptionalResource(args.requestContext?.workspaceRoot, [
+    `.product-dev/prompts/commands/${command}.md`,
+    `agent-resources/prompts/commands/${command}.md`,
+    `prompts/commands/${command}.md`
+  ]);
+  const outputSchema = await readOptionalResource(args.requestContext?.workspaceRoot, [
+    `.product-dev/prompts/output-schemas/${command}.md`,
+    `agent-resources/prompts/output-schemas/${command}.md`
+  ]) || defaultOutputSchema(command);
+  const skills = await loadRelevantSkills(args.requestContext?.workspaceRoot, command);
+  const context = [
+    `## Raw User Input\n${args.userPrompt || '(empty)'}`,
+    `## Optimized User Intent\n${optimizeUserInput(command, args.userPrompt)}`,
+    `## Request Context\n${renderRequestContext(args.requestContext)}`,
+    extraContext ? `## Backend Code Scan / Static Evidence\n${extraContext}` : '',
+    skills ? `## Loaded Skills\n${skills}` : ''
+  ].filter(Boolean).join('\n\n');
+
+  return {
+    title,
+    systemPrompt: SYSTEM_PROMPT,
+    role: roleFor(command),
+    task: commandPrompt || defaultTask(command),
+    workflowStage: command,
+    context,
+    constraints: DEFAULT_CONSTRAINTS,
+    outputSchema,
+    nextStepHint: getNextStepHint(command)
+  };
+}
+
+function optimizeUserInput(command: string, raw: string): string {
+  const prompt = raw?.trim() || 'No explicit user prompt was provided; infer from command and repository context.';
+  return [
+    `Command: /${command}`,
+    `Primary goal: ${goalFor(command)}`,
+    `User request: ${prompt}`,
+    'Preserve explicit stack, database, framework, policy, country, department, and output-format constraints.',
+    'If critical background is missing, include a short Targeted Questions section before implementation details.'
+  ].join('\n');
+}
+
+function isBackendApiTestCommand(command: string): boolean {
+  return ['api-test-gen', 'springboot-api-tests', 'python-api-tests', 'backend-api-scan'].includes(command);
+}
+
+function roleFor(command: string): string {
+  if (['api-test-gen', 'springboot-api-tests'].includes(command)) return 'Senior Java Spring Boot API test architect and QA automation engineer';
+  if (command === 'python-api-tests') return 'Senior Python backend API test architect and pytest/FastAPI QA engineer';
+  if (command.includes('sql')) return 'Senior data engineer and SQL reviewer';
+  if (command.includes('requirements')) return 'Senior business analyst and product manager';
+  return 'Senior enterprise software delivery architect';
+}
+
+function goalFor(command: string): string {
+  const goals: Record<string, string> = {
+    'api-test-gen': 'Read backend code logic and generate executable API test request examples and automated test cases.',
+    'springboot-api-tests': 'Generate Spring Boot API test requests, MockMvc/RestAssured/JUnit tests, and negative/security test scenarios.',
+    'python-api-tests': 'Generate FastAPI/Flask API test requests, pytest/httpx tests, and negative/security test scenarios.',
+    'backend-api-scan': 'Scan backend code and summarize API endpoint evidence for test generation.'
+  };
+  return goals[command] ?? 'Generate a high-quality enterprise SDLC artifact.';
+}
+
+function defaultTask(command: string): string {
+  if (command === 'api-test-gen') {
+    return `Read backend source code, attached files, and active editor context. Identify API endpoints, request/response shapes, validation rules, authorization constraints, exception paths, service logic branches, and generate API request examples plus automated tests.`;
+  }
+  if (command === 'springboot-api-tests') {
+    return `For Java Spring Boot code, derive tests from @RestController/@RequestMapping methods, DTO validation annotations, @PreAuthorize/security annotations, @ControllerAdvice, service branches, and repository/data effects. Generate .http/cURL/Postman examples plus MockMvc or RestAssured JUnit 5 tests.`;
+  }
+  if (command === 'python-api-tests') {
+    return `For Python FastAPI/Flask code, derive tests from route decorators, Pydantic schemas, dependencies/security, exception handlers, service branches, and data effects. Generate .http/cURL/Postman examples plus pytest/httpx tests.`;
+  }
+  if (command === 'backend-api-scan') {
+    return `Scan backend code and summarize API endpoint evidence. Do not invent missing request fields.`;
+  }
+  return `Execute @product-dev /${command} using the user request, repository evidence, attachments, policy packs, skills, and output schema.`;
+}
+
+function defaultOutputSchema(command: string): string {
+  if (['api-test-gen', 'springboot-api-tests', 'python-api-tests'].includes(command)) {
+    return `# Backend API Test Generation Output
+## 1. Evidence Summary
+- Scanned controllers/routes
+- DTO/request model evidence
+- Validation and security evidence
+- Service logic branches and assumptions
+
+## 2. Endpoint Test Matrix
+| ID | Method | Path | Scenario | Request Data | Expected Status | Expected Assertions | Source Evidence |
+
+## 3. Request Examples
+### VS Code .http
+### cURL
+### HTTPie
+### Postman Collection JSON Snippet
+### Insomnia Request YAML/JSON
+
+## 4. Positive Test Cases
+## 5. Negative / Boundary Test Cases
+## 6. Auth / Permission Test Cases
+## 7. Validation Error Test Cases
+## 8. Service Logic / Business Rule Test Cases
+## 9. Persistence / Data Side-Effect Checks
+## 10. Automation Code
+- Spring Boot: MockMvc / RestAssured / JUnit 5
+- Python: pytest / httpx / TestClient
+
+## 11. Test Data Builder
+## 12. CI Integration
+## 13. Gaps and Questions
+## 14. Next Command`;
+  }
+  if (command === 'backend-api-scan') {
+    return `# Backend API Scan Report
+## Endpoint Signals
+## DTO / Request Model Signals
+## Validation / Security Signals
+## Service Logic Signals
+## Missing Evidence
+## Recommended Next Command`;
+  }
+  return `# ${titleFor(command)}
+## Summary
+## Inputs Used
+## Main Artifact
+## Risks / Assumptions
+## Verification
+## Next Command`;
+}
+
+async function readOptionalResource(root: string | undefined, relativePaths: string[]): Promise<string> {
+  if (!root) return '';
+  for (const rel of relativePaths) {
+    try {
+      const p = path.join(root, rel);
+      const stat = await fs.stat(p);
+      if (stat.isFile() && stat.size < 200_000) return await fs.readFile(p, 'utf8');
+    } catch {
+      // keep searching
+    }
+  }
+  return '';
+}
+
+async function loadRelevantSkills(root: string | undefined, command: string): Promise<string> {
+  if (!root) return '';
+  const bases = ['.product-dev/skills', 'agent-resources/skills'];
+  const chunks: string[] = [];
+  for (const base of bases) {
+    try {
+      const dir = path.join(root, base);
+      const entries = await fs.readdir(dir, { withFileTypes: true });
+      for (const e of entries) {
+        if (!e.isDirectory()) continue;
+        const p = path.join(dir, e.name, 'SKILL.md');
+        const text = await fs.readFile(p, 'utf8').catch(() => '');
+        if (!text) continue;
+        if (text.toLowerCase().includes(command.toLowerCase()) || text.toLowerCase().includes('backend') || text.toLowerCase().includes('api test')) {
+          chunks.push(`### ${e.name}\n${text.slice(0, 7000)}`);
+        }
+      }
+    } catch {
+      // optional
+    }
+  }
+  return chunks.join('\n\n');
+}
+
+async function writeWorkspaceFile(root: string | undefined, rel: string, content: string): Promise<void> {
+  if (!root) return;
+  const p = path.join(root, rel);
+  await fs.mkdir(path.dirname(p), { recursive: true });
+  await fs.writeFile(p, content, 'utf8');
+}
+
+function localInfo(command: string, args: CommandArgs): string {
+  if (command === 'attachments') {
+    return `# Attachment Context\n\n${renderRequestContext(args.requestContext)}`;
+  }
+  if (command === 'backend-api-scan') {
+    return scanBackendApiSignals(args.requestContext?.workspaceRoot).markdown;
+  }
+  return `# /${command}\n\nNo local-only implementation is required. Use /plan or a model-backed command.`;
+}
+
+function titleFor(command: string): string {
+  return command.split('-').map(part => part.charAt(0).toUpperCase() + part.slice(1)).join(' ');
 }
