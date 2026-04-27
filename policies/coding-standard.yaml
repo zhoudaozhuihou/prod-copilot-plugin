@@ -1,0 +1,9 @@
+qualityGates:
+  maxFileLines: 1000
+  maxFunctionLines: 200
+  maxComplexity: 15
+  requireMeaningfulNames: true
+  requireErrorHandling: true
+  requireLoggingForCriticalFlows: true
+  requireNoHardcodedSecrets: true
+  requireTestsForChangedLogic: true

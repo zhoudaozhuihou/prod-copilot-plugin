@@ -1,0 +1,1 @@
+Read `agent-resources/prompts/commands/design-md.md` and `agent-resources/skills/design-md/SKILL.md`. Generate or update root `DESIGN.md` from existing frontend code or from the user's desired visual direction. Do not invent exact design tokens without code or user evidence.

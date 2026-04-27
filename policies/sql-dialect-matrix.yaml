@@ -1,0 +1,21 @@
+sqlDialectMatrix:
+  postgresql:
+    pagination: LIMIT_OFFSET
+    upsert: ON_CONFLICT
+    partition: RANGE_LIST_HASH
+    notes: Prefer partial indexes and explain analyze for performance validation.
+  maxcompute:
+    pagination: LIMIT
+    upsert: MERGE_OR_INSERT_OVERWRITE
+    partition: PARTITION_COLUMNS
+    notes: Be explicit about partition pruning and avoid full table scans on large tables.
+  bigquery:
+    pagination: LIMIT_OFFSET
+    upsert: MERGE
+    partition: DATE_TIMESTAMP_INTEGER_RANGE
+    notes: Prefer partition filters and clustering; watch slot/cost impact.
+  oracle:
+    pagination: FETCH_FIRST_OR_ROWNUM
+    upsert: MERGE
+    partition: RANGE_LIST_HASH_COMPOSITE
+    notes: Validate execution plan, bind variables, indexes, and statistics.

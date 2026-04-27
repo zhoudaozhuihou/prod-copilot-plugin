@@ -1,0 +1,12 @@
+backend:
+  general:
+    requireLayeredArchitecture: true
+    requireInputValidation: true
+    requireErrorCodeStandard: true
+    requireAuditLog: true
+    requireOpenTelemetry: true
+    requireIdempotencyForWriteApis: true
+  springboot:
+    layers: [controller, dto, service, repository, entity, mapper, exception, config, test]
+  python:
+    layers: [router, schema, service, repository, config, test]

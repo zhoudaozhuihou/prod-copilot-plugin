@@ -1,0 +1,10 @@
+{
+  "skill_name": "ralph-prd",
+  "evals": [
+    {
+      "id": "ralph-prd-001",
+      "prompt": "Convert a PRD with a dashboard, API, and database change into prd.json.",
+      "expected_output": "Valid JSON with split stories, dependency ordering, passes:false, notes empty, and validation criteria."
+    }
+  ]
+}

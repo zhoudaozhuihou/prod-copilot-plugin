@@ -1,0 +1,17 @@
+{
+  "skill_name": "design-md",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Generate DESIGN.md from a React + Tailwind project with CSS variables and component files.",
+      "expected_output": "Stitch-compatible sections, evidence-backed tokens, assumptions, and agent prompt guide.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Generate a new DESIGN.md for an enterprise banking dashboard without existing code.",
+      "expected_output": "Clear visual direction, safe assumptions, accessibility guardrails, component/state rules.",
+      "files": []
+    }
+  ]
+}

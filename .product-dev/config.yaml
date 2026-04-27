@@ -1,0 +1,75 @@
+outputRoot: docs
+maxContextFiles: 80
+writeArtifacts: true
+project:
+  name: current-project
+  domain: product-engineering
+  type: fullstack-data-application
+  businessCriticality: medium
+workflow:
+  mode: ordered
+  nextStepHints: true
+  recommendedSequence:
+    - init
+    - scan
+    - plan
+    - brainstorm
+    - feature
+    - prd
+    - journey
+    - api
+    - frontend
+    - backend
+    - springboot
+    - python
+    - data
+    - dbschema
+    - sql
+    - pipeline
+    - task
+    - test
+    - quality
+    - review
+    - diff
+    - release
+ralphLoop:
+  enabled: true
+  maxIterations: 6
+  mode: guided
+  stateFile: .product-dev/ralph-loop.local.json
+  todoFile: .product-dev/RALPH_LOOP_TODO.md
+techStack:
+  frontend:
+    framework: react
+    language: typescript
+    ui:
+      - material-ui
+      - tailwindcss
+  backend:
+    java: springboot
+    python: fastapi
+  databases:
+    - postgresql
+    - maxcompute
+    - bigquery
+    - oracle
+    - mysql
+    - sqlserver
+    - snowflake
+    - databricks
+    - hive
+qualityGates:
+  maxFileLines: 1000
+  maxFunctionLines: 200
+  maxComplexity: 15
+  requireTests: true
+  requireApiContract: true
+  requireReleaseChecklist: true
+standards:
+  coding: policies/coding-standard.yaml
+  security: policies/security-standard.yaml
+  api: policies/api-standard.yaml
+  frontend: policies/frontend-standard.yaml
+  backend: policies/backend-standard.yaml
+  data: policies/data-standard.yaml
+  sqlDialectMatrix: policies/sql-dialect-matrix.yaml

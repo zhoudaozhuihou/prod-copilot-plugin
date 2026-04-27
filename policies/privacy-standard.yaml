@@ -1,0 +1,26 @@
+classification:
+  public: "Approved for public disclosure"
+  internal: "Internal business data"
+  confidential: "Customer, employee, financial, operational, or risk-sensitive data"
+  restricted: "Highly sensitive regulated data requiring explicit approval"
+
+sensitiveFields:
+  - customer_id
+  - account_number
+  - card_number
+  - national_id
+  - passport_number
+  - phone_number
+  - email
+  - address
+  - transaction_amount
+  - risk_score
+  - credit_score
+
+controls:
+  requireDataOwnerApproval: true
+  requireMaskingForNonProd: true
+  requireAuditLogging: true
+  requireLeastPrivilege: true
+  requireRetentionPolicy: true
+  requireCrossBorderReview: true

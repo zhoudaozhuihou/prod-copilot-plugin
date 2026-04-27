@@ -1,0 +1,12 @@
+api:
+  requireOpenApi: true
+  requireErrorCodes: true
+  requirePaginationForLists: true
+  requireFilteringForSearch: true
+  requireIdempotencyForMutations: true
+  requireCompatibilityStrategy: true
+  requireAuditFields: true
+  responseEnvelope:
+    success: boolean
+    data: object
+    error: object

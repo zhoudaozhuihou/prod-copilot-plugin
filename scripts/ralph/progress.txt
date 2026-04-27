@@ -1,0 +1,8 @@
+# Ralph Progress
+
+## Codebase Patterns
+
+- Add reusable patterns and gotchas here as they are discovered.
+
+## Iteration Log
+

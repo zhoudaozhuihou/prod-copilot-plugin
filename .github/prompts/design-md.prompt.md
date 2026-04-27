@@ -1,0 +1,1 @@
+Use `agent-resources/prompts/commands/design-md.md` and `agent-resources/skills/design-md/SKILL.md` to generate or update root `DESIGN.md` from repository evidence. Follow the Stitch-compatible section structure and separate evidence from assumptions.

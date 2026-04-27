@@ -1,0 +1,15 @@
+data:
+  supportedEngines: [postgresql, maxcompute, bigquery, oracle, mysql, sqlserver, snowflake, databricks, hive]
+  quality:
+    requireNotNullChecks: true
+    requireUniquenessChecks: true
+    requireFreshnessChecks: true
+    requireReconciliation: true
+  governance:
+    requireLineage: true
+    requireAuditColumns: true
+    requireDataOwner: true
+    requireRetentionPolicy: true
+  performance:
+    requirePartitionStrategy: true
+    requireCostReview: true

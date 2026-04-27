@@ -1,0 +1,10 @@
+{
+  "skill_name": "ralph-loop",
+  "evals": [
+    {
+      "id": "ralph-loop-001",
+      "prompt": "Review whether a PRD and prd.json are ready for a Ralph loop.",
+      "expected_output": "Readiness decision with blockers, story-size findings, quality gates, memory file checks, and next command."
+    }
+  ]
+}

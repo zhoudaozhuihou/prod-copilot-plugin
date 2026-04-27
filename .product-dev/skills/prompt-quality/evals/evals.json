@@ -1,0 +1,17 @@
+{
+  "skill_name": "prompt-quality",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Use the prompt-quality skill on a realistic enterprise task with incomplete context and produce targeted questions plus a draft artifact.",
+      "expected_output": "Clear assumptions, missing questions, structured output, and next command.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Review an existing artifact using prompt-quality and identify Blocker/High/Medium/Low findings.",
+      "expected_output": "Severity-based findings with evidence, impact, fix, and validation step.",
+      "files": []
+    }
+  ]
+}

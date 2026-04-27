@@ -1,0 +1,471 @@
+{
+  "name": "company-product-dev-copilot",
+  "displayName": "Company Product Dev Copilot - Ralph PRD Skills Edition",
+  "description": "Enterprise VS Code Copilot Chat participant with Ralph-style PRD decomposition, prd.json conversion, prompt optimization, attachment-aware context, OpenCode-compatible prompts/skills, DESIGN.md UI design, NL2SQL, SQL translation/review, policy packs, and bank-grade data workflows.",
+  "version": "1.4.0",
+  "publisher": "company-internal",
+  "license": "UNLICENSED",
+  "engines": {
+    "vscode": "^1.100.0"
+  },
+  "categories": [
+    "AI",
+    "Other"
+  ],
+  "activationEvents": [
+    "onChatParticipant:company-product-dev.product-dev",
+    "onCommand:companyProductDev.openOutputFolder",
+    "onCommand:companyProductDev.runBrainstorm"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "chatParticipants": [
+      {
+        "id": "company-product-dev.product-dev",
+        "name": "product-dev",
+        "fullName": "Product Development Copilot",
+        "description": "Bank-grade product development and data engineering workflow assistant with interactive init, fullstack scaffolding, and data delivery governance.",
+        "isSticky": true,
+        "commands": [
+          {
+            "name": "init",
+            "description": "Stack-driven initialization: generate only the requested frontend/backend/data project structure plus Copilot/opencode assets."
+          },
+          {
+            "name": "scan",
+            "description": "Scan current repository and generate a repo map."
+          },
+          {
+            "name": "plan",
+            "description": "Create an ordered delivery plan and recommended command sequence for the current task."
+          },
+          {
+            "name": "attachments",
+            "description": "Show active editor context and Chat attachments/references that will be injected into optimized prompts."
+          },
+          {
+            "name": "loop",
+            "description": "Start a Ralph-style loop using external state and execute iterative workflow steps."
+          },
+          {
+            "name": "loop-next",
+            "description": "Continue the next pending Ralph loop iteration from .product-dev/ralph-loop.local.json."
+          },
+          {
+            "name": "loop-status",
+            "description": "Show current Ralph loop state, progress, next command, and outstanding tasks."
+          },
+          {
+            "name": "loop-stop",
+            "description": "Stop the active Ralph loop and mark it as paused/stopped."
+          },
+          {
+            "name": "prompt",
+            "description": "Optimize rough prompts into enterprise-grade prompts with role, context, constraints, output schema, and evaluation criteria."
+          },
+          {
+            "name": "summarize",
+            "description": "Summarize selected text, documents, or repository context into decision-ready notes."
+          },
+          {
+            "name": "compress",
+            "description": "Compress long context into a compact briefing for Copilot, Claude Code, Codex, or Ralph loop execution."
+          },
+          {
+            "name": "doc-review",
+            "description": "Review prompts, documents, PRDs, designs, SQL, or release notes with severity and actionable fixes."
+          },
+          {
+            "name": "rewrite",
+            "description": "Rewrite or upgrade content for executive, product, technical, banking-grade, or implementation-ready use."
+          },
+          {
+            "name": "checklist",
+            "description": "Generate execution checklists, DoD, review checklists, handoff checklists, and acceptance checklists."
+          },
+          {
+            "name": "policy-init",
+            "description": "Create local policy pack folders and rule templates for company, department, country, project, and environment overlays."
+          },
+          {
+            "name": "policy-intake",
+            "description": "Ask interactive questions to identify which company/department/country/project rules must be supplied."
+          },
+          {
+            "name": "policy-scan",
+            "description": "Scan .product-dev/policy-packs and policies folders, inventory loaded rules, and detect missing policy files."
+          },
+          {
+            "name": "policy-review",
+            "description": "Review policy pack completeness, conflicts, precedence, and applicability to the current workflow."
+          },
+          {
+            "name": "brainstorm",
+            "description": "Brainstorm product opportunities, feature ideas, experiments, and MVP options."
+          },
+          {
+            "name": "feature",
+            "description": "Convert brainstorm ideas into structured feature design."
+          },
+          {
+            "name": "prd",
+            "description": "Generate or update PRD from user input and repository context."
+          },
+          {
+            "name": "story-split",
+            "description": "Split PRD or feature scope into Ralph-sized one-iteration user stories with dependency-safe ordering."
+          },
+          {
+            "name": "prd-json",
+            "description": "Convert PRD Markdown or feature design into Ralph-compatible prd.json with passes:false userStories."
+          },
+          {
+            "name": "ralph-readiness",
+            "description": "Review PRD, prd.json, progress.txt, AGENTS.md, quality checks, and story size for Ralph loop readiness."
+          },
+          {
+            "name": "journey",
+            "description": "Generate user journey and identify friction points from frontend code."
+          },
+          {
+            "name": "design-md",
+            "description": "Read existing frontend UI code or user design intent and generate a Stitch-compatible root DESIGN.md plus reviewable docs artifact."
+          },
+          {
+            "name": "ui-design",
+            "description": "Generate implementation-ready UI design guidance using DESIGN.md, existing frontend context, and user design direction."
+          },
+          {
+            "name": "frontend",
+            "description": "Design or implement frontend pages, components, state management, validation, tests, and accessibility."
+          },
+          {
+            "name": "backend",
+            "description": "Design backend services, APIs, domain model, security, observability, and tests."
+          },
+          {
+            "name": "springboot",
+            "description": "Generate or review Java Spring Boot service design, controllers, DTOs, services, repositories, tests, and configuration."
+          },
+          {
+            "name": "python",
+            "description": "Generate or review Python backend design, FastAPI/Flask services, data services, tests, and packaging."
+          },
+          {
+            "name": "data",
+            "description": "Design data development solution: data model, ingestion, transformation, quality, lineage, governance, and serving."
+          },
+          {
+            "name": "sql",
+            "description": "Generate or optimize SQL for PostgreSQL, MaxCompute, BigQuery, Oracle, and other engines."
+          },
+          {
+            "name": "dbschema",
+            "description": "Design or review database schema, indexes, partitions, constraints, and migration scripts."
+          },
+          {
+            "name": "pipeline",
+            "description": "Design data pipelines, orchestration, retry, idempotency, SLA, monitoring, and backfill strategy."
+          },
+          {
+            "name": "quality",
+            "description": "Generate quality gates for code, API, data, testing, security, and release readiness."
+          },
+          {
+            "name": "task",
+            "description": "Split PRD or feature design into implementation tasks."
+          },
+          {
+            "name": "api",
+            "description": "Generate or validate API contract."
+          },
+          {
+            "name": "review",
+            "description": "Run enterprise code review against current git diff."
+          },
+          {
+            "name": "test",
+            "description": "Generate test plan and test cases from PRD, code, and diff."
+          },
+          {
+            "name": "diff",
+            "description": "Compare git diff with PRD, journey, API contract, and test plan."
+          },
+          {
+            "name": "release",
+            "description": "Generate release notes, go-live checklist, rollback plan, and risk assessment."
+          },
+          {
+            "name": "intake",
+            "description": "Ask targeted questions for missing business, governance, and technology-stack context."
+          },
+          {
+            "name": "context",
+            "description": "Capture user answers and update project background, stack decisions, and local context."
+          },
+          {
+            "name": "datacontract",
+            "description": "Generate bank-grade data contract and compatibility rules."
+          },
+          {
+            "name": "sttm",
+            "description": "Generate Source-to-Target Mapping and transformation rules."
+          },
+          {
+            "name": "dq",
+            "description": "Generate executable data quality rules and SQL checks."
+          },
+          {
+            "name": "reconcile",
+            "description": "Generate reconciliation design, SQL checks, and exception handling."
+          },
+          {
+            "name": "lineage",
+            "description": "Generate table/field lineage analysis and Mermaid lineage graph."
+          },
+          {
+            "name": "sql-translate",
+            "description": "Translate SQL across Oracle, PostgreSQL, BigQuery, MaxCompute, Hive, etc."
+          },
+          {
+            "name": "migration",
+            "description": "Design data/schema migration, dual-run, validation, and rollback."
+          },
+          {
+            "name": "scheduler",
+            "description": "Design DAG scheduling, dependency, retry, SLA, and alerting strategy."
+          },
+          {
+            "name": "privacy",
+            "description": "Generate data privacy, masking, retention, and access-control assessment."
+          },
+          {
+            "name": "data-test",
+            "description": "Generate data testing strategy and executable test cases."
+          },
+          {
+            "name": "data-review",
+            "description": "Run bank-grade data engineering review for SQL/model/pipeline/release."
+          },
+          {
+            "name": "catalog",
+            "description": "Generate data catalog entry and business glossary."
+          },
+          {
+            "name": "semantic",
+            "description": "Generate semantic layer and agent-readable data card."
+          },
+          {
+            "name": "cost",
+            "description": "Generate database/cloud cost optimization plan."
+          },
+          {
+            "name": "runbook",
+            "description": "Generate production runbook, incident playbook, and backfill playbook."
+          },
+          {
+            "name": "skill-init",
+            "description": "Create .product-dev/skills with example custom skills."
+          },
+          {
+            "name": "skill-scan",
+            "description": "Scan and list user-defined custom skills."
+          },
+          {
+            "name": "skill-run",
+            "description": "Run a named custom skill against the supplied task."
+          },
+          {
+            "name": "skill-review",
+            "description": "Review local custom skills for prompt quality and governance readiness."
+          },
+          {
+            "name": "resources-init",
+            "description": "Initialize portable prompt/skill resources under agent-resources/ and .product-dev/prompts for Copilot today and OpenCode migration later."
+          },
+          {
+            "name": "resources-scan",
+            "description": "Scan portable prompts, skills, Copilot shims, and OpenCode shims for migration readiness."
+          },
+          {
+            "name": "nl2sql",
+            "description": "Convert natural language business questions into safe SQL for PostgreSQL, Oracle, BigQuery, MaxCompute/ODPS, MySQL, SQL Server, Snowflake, Databricks/Spark SQL, or Hive."
+          },
+          {
+            "name": "sql-review",
+            "description": "Review SQL for correctness, join/grain risk, performance, DQ, reconciliation, privacy, dialect compatibility, and production readiness."
+          }
+        ]
+      }
+    ],
+    "commands": [
+      {
+        "command": "companyProductDev.openOutputFolder",
+        "title": "Product Dev: Open Output Folder"
+      },
+      {
+        "command": "companyProductDev.runBrainstorm",
+        "title": "Product Dev: Brainstorm Feature Ideas"
+      }
+    ],
+    "configuration": {
+      "title": "Company Product Dev Copilot",
+      "properties": {
+        "companyProductDev.outputRoot": {
+          "type": "string",
+          "default": "docs",
+          "description": "Root folder for generated artifacts."
+        },
+        "companyProductDev.modelFamily": {
+          "type": "string",
+          "default": "gpt-4o",
+          "description": "Preferred model family when request.model is unavailable."
+        },
+        "companyProductDev.writeArtifacts": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether to write generated artifacts to workspace files."
+        },
+        "companyProductDev.maxContextFiles": {
+          "type": "number",
+          "default": 60,
+          "description": "Maximum source files included in repository context."
+        },
+        "companyProductDev.defaultBackendStack": {
+          "type": "string",
+          "default": "springboot",
+          "enum": [
+            "springboot",
+            "python",
+            "node",
+            "go",
+            "mixed"
+          ],
+          "description": "Default backend stack used when user request is ambiguous."
+        },
+        "companyProductDev.defaultDatabaseEngine": {
+          "type": "string",
+          "default": "postgresql",
+          "enum": [
+            "postgresql",
+            "maxcompute",
+            "bigquery",
+            "oracle",
+            "mysql",
+            "sqlserver",
+            "snowflake",
+            "databricks",
+            "hive",
+            "unknown"
+          ],
+          "description": "Default SQL/database engine used when the request is ambiguous."
+        },
+        "companyProductDev.generatedCodeMode": {
+          "type": "string",
+          "default": "design-first",
+          "enum": [
+            "design-first",
+            "patch-suggestion",
+            "scaffold"
+          ],
+          "description": "Controls how aggressively commands generate implementation code."
+        },
+        "companyProductDev.ralphMaxIterations": {
+          "type": "number",
+          "default": 6,
+          "minimum": 1,
+          "maximum": 20,
+          "description": "Maximum number of workflow iterations to run for /loop before requiring user review."
+        },
+        "companyProductDev.ralphAutoRun": {
+          "type": "boolean",
+          "default": false,
+          "description": "When true, /loop runs multiple iterations immediately. When false, it initializes the loop and runs one safe iteration."
+        },
+        "companyProductDev.workflowMode": {
+          "type": "string",
+          "default": "ordered",
+          "enum": [
+            "ordered",
+            "flexible"
+          ],
+          "description": "Controls whether each command gives strict next-step guidance or flexible options."
+        },
+        "companyProductDev.initScaffoldMode": {
+          "type": "string",
+          "default": "guided",
+          "enum": [
+            "guided",
+            "minimal",
+            "fullstack",
+            "data-only",
+            "frontend-only",
+            "backend-only"
+          ],
+          "description": "Default scaffold mode used by /init when user does not specify a track."
+        },
+        "companyProductDev.defaultDataEngines": {
+          "type": "array",
+          "default": [
+            "postgresql",
+            "oracle",
+            "bigquery",
+            "maxcompute"
+          ],
+          "items": {
+            "type": "string"
+          },
+          "description": "Default database engines for generated data engineering folders and prompts."
+        },
+        "companyProductDev.promptOptimizationMode": {
+          "type": "string",
+          "default": "standard",
+          "enum": [
+            "off",
+            "standard",
+            "strict"
+          ],
+          "description": "Controls deterministic user input optimization before each @product-dev command."
+        },
+        "companyProductDev.skillRegistryEnabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "When true, commands load matching user-defined skills from .product-dev/skills/."
+        },
+        "companyProductDev.skillRoot": {
+          "type": "string",
+          "default": ".product-dev/skills",
+          "description": "Workspace-relative folder for user-defined skill packs."
+        },
+        "companyProductDev.ralphWorkDir": {
+          "type": "string",
+          "default": "scripts/ralph",
+          "description": "Workspace-relative directory that stores Ralph prompt.md, CLAUDE.md, prd.json, progress.txt, and archives."
+        },
+        "companyProductDev.ralphRequireBrowserVerification": {
+          "type": "boolean",
+          "default": true,
+          "description": "When true, frontend Ralph stories must include browser or manual visual verification acceptance criteria."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "lint": "eslint src --ext ts",
+    "test": "vitest run",
+    "package": "vsce package --no-dependencies",
+    "vscode:prepublish": "npm run compile"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "@types/vscode": "^1.100.0",
+    "@typescript-eslint/eslint-plugin": "^8.31.0",
+    "@typescript-eslint/parser": "^8.31.0",
+    "@vscode/vsce": "^3.3.0",
+    "eslint": "^9.25.0",
+    "typescript": "^5.8.3",
+    "vitest": "^3.1.2"
+  }
+}

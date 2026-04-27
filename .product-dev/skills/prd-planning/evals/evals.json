@@ -1,0 +1,10 @@
+{
+  "skill_name": "prd-planning",
+  "evals": [
+    {
+      "id": "prd-001",
+      "prompt": "Create a PRD for a new dashboard with filters, export, API, and data quality checks.",
+      "expected_output": "Clarifying questions if needed, small stories, explicit non-goals, acceptance criteria, validation evidence, and next command."
+    }
+  ]
+}

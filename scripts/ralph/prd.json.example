@@ -1,0 +1,20 @@
+{
+  "project": "MyApp",
+  "branchName": "ralph/example-feature",
+  "description": "Example feature prepared for Ralph-style execution",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Add example schema field",
+      "description": "As a developer, I need the schema field so that later stories can persist data.",
+      "acceptanceCriteria": [
+        "Schema change is added",
+        "Migration or DDL validation passes",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": ""
+    }
+  ]
+}

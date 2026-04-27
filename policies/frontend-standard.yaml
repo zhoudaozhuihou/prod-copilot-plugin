@@ -1,0 +1,14 @@
+frontend:
+  stack:
+    preferred: [React, TypeScript, Material UI, TailwindCSS]
+  quality:
+    requireLoadingState: true
+    requireErrorState: true
+    requireEmptyState: true
+    requirePermissionState: true
+    requireAccessibility: true
+    requireTelemetry: true
+    testing: [unit, component, e2e]
+  performance:
+    avoidUnboundedRenders: true
+    requireMemoizationForHeavyLists: true

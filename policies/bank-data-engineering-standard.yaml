@@ -1,0 +1,29 @@
+dataEngineering:
+  requiredArtifacts:
+    - data_contract
+    - source_to_target_mapping
+    - schema_design
+    - sql_design
+    - data_quality_rules
+    - reconciliation_plan
+    - lineage
+    - scheduler_design
+    - data_test_plan
+    - privacy_assessment
+    - release_checklist
+    - runbook
+  sqlRules:
+    requirePrimaryTable: true
+    forbidCartesianJoin: true
+    requireJoinGrainCheck: true
+    requirePartitionFilter: true
+    requireSCD2EffectiveDateFilter: true
+    requireSoftDeleteFilter: true
+    requireValidationSql: true
+  pipelineRules:
+    requireWatermark: true
+    requireIdempotencyKey: true
+    requireBackfillPlan: true
+    requireRetryPolicy: true
+    requireSlaAndAlerting: true
+    requireExceptionTable: true

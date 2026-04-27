@@ -1,0 +1,12 @@
+[
+  {
+    "name": "nl2sql_missing_schema",
+    "input": "生成最近30天客户交易金额SQL，数据库BigQuery",
+    "expected": ["ask for schema", "state dialect", "validation SQL", "do not invent columns"]
+  },
+  {
+    "name": "attachment_context",
+    "input": "review attached SQL",
+    "expected": ["use attachment as context", "name attachment", "severity-ranked findings"]
+  }
+]

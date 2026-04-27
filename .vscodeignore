@@ -1,0 +1,7 @@
+.vscode/**
+.github/**
+tests/**
+node_modules/**
+src/**
+*.map
+*.tsbuildinfo

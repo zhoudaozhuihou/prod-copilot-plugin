@@ -1,0 +1,12 @@
+security:
+  requireAuthentication: true
+  requireAuthorization: true
+  requireInputValidation: true
+  requireOutputEncoding: true
+  requireAuditLog: true
+  requireSensitiveDataMasking: true
+  forbidden:
+    - hardcoded secrets
+    - logging tokens
+    - raw production data in prompts
+    - unaudited admin operations
