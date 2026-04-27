@@ -7,6 +7,16 @@ triggers: DESIGN.md,design system,ui design,frontend design,视觉规范,设计�
 
 # DESIGN.md Skill
 
+## Karpathy Execution Guardrails
+
+Apply the shared `karpathy-guidelines` skill for non-trivial work:
+
+- State assumptions before designing or changing anything.
+- Prefer the smallest useful artifact over speculative completeness.
+- Keep changes surgical and trace every recommendation to the user request or evidence.
+- Convert the task into verifiable success criteria before calling it done.
+- If project policy, user intent, or repository evidence is unclear, ask targeted questions instead of guessing.
+
 ## Use this skill when
 
 The user wants to extract a frontend project's current visual language into `DESIGN.md`, generate a new design system for a feature/product, or make AI coding agents produce consistent UI.

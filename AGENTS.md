@@ -19,3 +19,14 @@ This repository uses portable AI resources so the same prompt/skill system works
 ## Rule
 
 Do not duplicate prompt logic in IDE-specific files. IDE-specific files should point to portable resources.
+
+
+## Karpathy Execution Rules
+
+For non-trivial engineering tasks, also load `agent-resources/skills/karpathy-guidelines/SKILL.md` or `.product-dev/skills/karpathy-guidelines/SKILL.md` when present.
+
+1. State assumptions before changing code, SQL, PRD, or architecture.
+2. Prefer simple, minimal changes over speculative abstractions.
+3. Keep changes surgical; do not refactor unrelated code or documents.
+4. Define success criteria and verification checks before marking work complete.
+5. Push back on unsafe, broad, or unverifiable requests with a smaller safer alternative.

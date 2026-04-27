@@ -14,6 +14,12 @@
 import { ProductDevCommand } from '../core/types';
 
 export function getOutputSchema(command: ProductDevCommand): string {
+  const base = getBaseOutputSchema(command);
+  const diagrams = getDiagramSchema(command);
+  return [base, diagrams].filter(Boolean).join('\n\n');
+}
+
+function getBaseOutputSchema(command: ProductDevCommand): string {
   switch (command) {
     case 'policy-init':
       return `# Policy Pack Initialization
@@ -451,4 +457,83 @@ Table columns: Rule, Dimension, Severity, Threshold, SQL Check, Exception Table,
     default:
       return `# Product Dev Copilot Help\n\nList available commands and examples.`;
   }
+}
+
+
+function getDiagramSchema(command: ProductDevCommand): string {
+  const diagramCommands: ProductDevCommand[] = ['architecture-diagram', 'journey-diagram', 'diagram'];
+  const diagramAware: ProductDevCommand[] = [
+    'plan', 'brainstorm', 'feature', 'prd', 'story-split', 'journey', 'design-md', 'ui-design',
+    'frontend', 'backend', 'springboot', 'python', 'api', 'data', 'datacontract', 'sttm',
+    'dbschema', 'sql', 'nl2sql', 'sql-review', 'sql-translate', 'dq', 'reconcile', 'lineage',
+    'pipeline', 'scheduler', 'privacy', 'data-test', 'data-review', 'semantic', 'catalog',
+    'migration', 'quality', 'task', 'test', 'review', 'diff', 'release', 'runbook', 'ralph-readiness'
+  ];
+  if (command === 'architecture-diagram') {
+    return `# Architecture Diagram Pack
+
+## 1. Diagram Inventory
+Table columns: Diagram, Purpose, Source Evidence, Mermaid Type, Owner, Update Trigger.
+## 2. System Context Diagram
+Use Mermaid \`flowchart\` or \`C4Context\` when supported.
+## 3. Container / Component Diagram
+## 4. Deployment / Runtime Topology Diagram
+## 5. API / Integration Sequence Diagram
+## 6. Data Flow Diagram
+## 7. Security / Trust Boundary Diagram
+## 8. Observability / Failure Flow Diagram
+## 9. Assumptions and Missing Architecture Context
+## 10. How To Keep Diagrams Updated
+## 11. Next Command`;
+  }
+  if (command === 'journey-diagram') {
+    return `# User Journey Diagram Pack
+
+## 1. Diagram Inventory
+Table columns: Diagram, Purpose, Source Evidence, Mermaid Type, Owner, Update Trigger.
+## 2. Primary User Journey Map
+Use Mermaid \`journey\` when suitable.
+## 3. User Flow Diagram
+Use Mermaid \`flowchart\`.
+## 4. Decision / State Transition Diagram
+Use Mermaid \`stateDiagram-v2\` where applicable.
+## 5. Sequence Diagram for Key Interaction
+## 6. Funnel and Friction Diagram
+## 7. Instrumentation / Analytics Event Flow
+## 8. Accessibility and Error-state Coverage
+## 9. Assumptions and Missing UX Context
+## 10. Next Command`;
+  }
+  if (command === 'diagram') {
+    return `# Project Diagram Pack
+
+## 1. Diagram Decision Matrix
+Choose only diagrams that help the current task. Explain included/skipped diagrams.
+## 2. Architecture Diagrams
+## 3. User Journey / Flow Diagrams
+## 4. API / Sequence Diagrams
+## 5. Data Model / Lineage / Pipeline Diagrams
+## 6. Security / Privacy Boundary Diagrams
+## 7. Release / Runbook / Incident Diagrams
+## 8. Diagram Maintenance Rules
+## 9. Next Command`;
+  }
+  if (!diagramAware.includes(command)) return '';
+  return `# Required Diagrams
+
+For this command, include diagrams only when they clarify implementation, review, or governance. Use Mermaid diagram-as-code.
+
+## Diagram Decision
+- Required diagrams:
+- Optional diagrams skipped and why:
+
+## Mermaid Diagrams
+Include the smallest useful set. Each diagram must have purpose, source evidence, code block, interpretation notes, and update trigger.
+
+Recommended diagram types by artifact:
+- Product/PRD: user flow, journey map, system context, dependency map.
+- Frontend/UI: route map, component hierarchy, state transition, interaction sequence.
+- Backend/API: service boundary, request sequence, domain/component map, deployment topology.
+- Data/SQL: ERD, lineage, pipeline DAG, DQ control flow, reconciliation flow, privacy boundary.
+- Quality/Release/Runbook: gate flow, rollback flow, incident escalation flow.`;
 }

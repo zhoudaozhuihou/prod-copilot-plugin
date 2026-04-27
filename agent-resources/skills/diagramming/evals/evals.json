@@ -1,0 +1,10 @@
+{
+  "skill_name": "diagramming",
+  "evals": [
+    {
+      "id": "diagramming-001",
+      "prompt": "Generate architecture and journey diagrams for a React + Spring Boot + PostgreSQL feature.",
+      "expected_output": "Mermaid diagrams with evidence, assumptions, interpretation notes, and update triggers."
+    }
+  ]
+}

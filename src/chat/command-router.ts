@@ -24,6 +24,9 @@ import { runDocReviewCommand } from '../commands/doc-review.command';
 import { runFeatureCommand } from '../commands/feature.command';
 import { runFrontendCommand } from '../commands/frontend.command';
 import { runDesignMdCommand } from '../commands/design-md.command';
+import { runArchitectureDiagramCommand } from '../commands/architecture-diagram.command';
+import { runJourneyDiagramCommand } from '../commands/journey-diagram.command';
+import { runDiagramCommand } from '../commands/diagram.command';
 import { runInitCommand } from '../commands/init.command';
 import { runJourneyCommand } from '../commands/journey.command';
 import { runLoopCommand } from '../commands/loop.command';
@@ -78,6 +81,8 @@ import { runSqlReviewCommand } from '../commands/sql-review.command';
 import { runNl2sqlCommand } from '../commands/nl2sql.command';
 import { runResourcesScanCommand } from '../commands/resources-scan.command';
 import { runResourcesInitCommand } from '../commands/resources-init.command';
+import { runAgentsInitCommand } from '../commands/agents-init.command';
+import { runAgentsScanCommand } from '../commands/agents-scan.command';
 import { renderToolCommandTable, renderWorkflowTable } from '../workflow/workflow';
 
 export async function routeCommand(args: CommandArgs): Promise<void> {
@@ -96,6 +101,8 @@ export async function routeCommand(args: CommandArgs): Promise<void> {
     case 'skill-review': await runSkillReviewCommand(args); return;
     case 'resources-init': await runResourcesInitCommand(args); return;
     case 'resources-scan': await runResourcesScanCommand(args); return;
+    case 'agents-init': await runAgentsInitCommand(args); return;
+    case 'agents-scan': await runAgentsScanCommand(args); return;
     case 'intake': await runIntakeCommand(args); return;
     case 'plan': await runPlanCommand(args); return;
     case 'loop': await runLoopCommand(args); return;
@@ -117,6 +124,9 @@ export async function routeCommand(args: CommandArgs): Promise<void> {
     case 'journey': await runJourneyCommand(args); return;
     case 'design-md': await runDesignMdCommand(args); return;
     case 'ui-design': await runDesignMdCommand(args); return;
+    case 'architecture-diagram': await runArchitectureDiagramCommand(args); return;
+    case 'journey-diagram': await runJourneyDiagramCommand(args); return;
+    case 'diagram': await runDiagramCommand(args); return;
     case 'frontend': await runFrontendCommand(args); return;
     case 'backend': await runBackendCommand(args); return;
     case 'springboot': await runSpringbootCommand(args); return;
@@ -158,9 +168,9 @@ export async function routeCommand(args: CommandArgs): Promise<void> {
 export function normalizeCommand(command: string | undefined): ProductDevCommand {
   const value = (command ?? 'help').trim().toLowerCase();
   const supported: ProductDevCommand[] = [
-    'help', 'init', 'policy-init', 'policy-intake', 'policy-scan', 'policy-review', 'skill-init', 'skill-scan', 'skill-run', 'skill-review', 'resources-init', 'resources-scan', 'scan', 'intake', 'context', 'attachments', 'datacontract', 'sttm', 'dq', 'reconcile', 'lineage', 'sql-translate', 'nl2sql', 'sql-review', 'migration', 'scheduler', 'privacy', 'data-test', 'data-review', 'catalog', 'semantic', 'cost', 'runbook', 'plan', 'loop', 'loop-next', 'loop-status', 'loop-stop',
+    'help', 'init', 'policy-init', 'policy-intake', 'policy-scan', 'policy-review', 'skill-init', 'skill-scan', 'skill-run', 'skill-review', 'resources-init', 'resources-scan', 'agents-init', 'agents-scan', 'scan', 'intake', 'context', 'attachments', 'datacontract', 'sttm', 'dq', 'reconcile', 'lineage', 'sql-translate', 'nl2sql', 'sql-review', 'migration', 'scheduler', 'privacy', 'data-test', 'data-review', 'catalog', 'semantic', 'cost', 'runbook', 'plan', 'loop', 'loop-next', 'loop-status', 'loop-stop',
     'prompt', 'summarize', 'compress', 'doc-review', 'rewrite', 'checklist',
-    'brainstorm', 'feature', 'prd', 'story-split', 'prd-json', 'ralph-readiness', 'journey', 'design-md', 'ui-design', 'frontend', 'backend', 'springboot', 'python',
+    'brainstorm', 'feature', 'prd', 'story-split', 'prd-json', 'ralph-readiness', 'journey', 'design-md', 'ui-design', 'architecture-diagram', 'journey-diagram', 'diagram', 'frontend', 'backend', 'springboot', 'python',
     'data', 'sql', 'dbschema', 'pipeline', 'quality', 'task', 'api', 'review', 'test', 'diff', 'release'
   ];
   return supported.includes(value as ProductDevCommand) ? (value as ProductDevCommand) : 'help';
@@ -185,6 +195,13 @@ ${renderWorkflowTable()}
 ## Context Commands
 
 - /attachments - show active editor context and Chat attachments/references that will be injected into optimized prompts.
+
+## VS Code Copilot Subagents
+
+- /agents-init - create .github/agents custom agents and subagent orchestration resources.
+- /agents-scan - scan custom agents and check native subagent readiness.
+
+Use the generated \`product-dev-coordinator\` custom agent in Copilot Chat for complex tasks. It can use VS Code's \`agent\` tool to delegate to focused worker agents when subagents are available.
 
 ## Portable Prompt / Skill Resources
 
@@ -219,6 +236,12 @@ ${renderToolCommandTable()}
 \`@product-dev /rewrite 将这段内容升级为银行管理层汇报风格\`
 
 \`@product-dev /checklist 为 Spring Boot + PostgreSQL 功能上线生成检查清单\`
+
+## Diagram Commands
+
+- /architecture-diagram - generate architecture diagrams: system context, container/component, deployment, sequence, data-flow, security/trust-boundary.
+- /journey-diagram - generate user journey diagrams: journey map, user flow, state transition, funnel/friction, instrumentation.
+- /diagram - generate the diagram pack required by the current project step.
 
 ## SQL Tool Commands
 

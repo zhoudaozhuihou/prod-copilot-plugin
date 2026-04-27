@@ -619,3 +619,14 @@ Convert PRD Markdown or story split output into Ralph-compatible `prd.json` cont
 ### `/ralph-readiness`
 
 Review whether the project is ready for loop execution. It checks PRD quality, story size, dependency order, prd.json schema, quality commands, `progress.txt`, `AGENTS.md` / `CLAUDE.md`, and unresolved blockers.
+
+
+## Diagram Workflow v1.7
+
+New commands:
+
+- `@product-dev /architecture-diagram` — generates system context, container/component, deployment, sequence, data-flow, security/trust-boundary, and observability diagrams.
+- `@product-dev /journey-diagram` — generates user journey, user flow, state transition, funnel/friction, and instrumentation diagrams.
+- `@product-dev /diagram` — generates the minimum useful diagram pack for the current SDLC step.
+
+All major product, frontend, backend, API, data, quality, release, and runbook artifacts now include a `Required Diagrams` section when visual documentation is useful. Mermaid is the default format so diagrams are portable to GitHub, VS Code, OpenCode, and documentation sites.

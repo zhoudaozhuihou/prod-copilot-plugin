@@ -130,7 +130,8 @@ export function optimizeUserInput(command: ProductDevCommand, rawPrompt: string,
     'missing-context-questioning',
     'quality-bar-injection',
     'multi-version-prompt-optimization',
-    'skill-matching'
+    'skill-matching',
+    'subagent-delegation-planning'
   ];
 
   const optimizedPrompt = buildBalancedPrompt({ command, originalPrompt, normalizedGoal, detectedIntent, templateName, role, scope, constraints, requiredContext, missingQuestions, expectedOutput, qualityChecks, avoid, suggestedSkills, contextSignals, attachmentSignals, appliedStrategies, optimizedPrompt: '', versions: [] });
@@ -228,6 +229,7 @@ function buildConstraints(command: ProductDevCommand, prompt: string, repo?: Rep
     'Produce a reviewable artifact with clear sections and next command.'
   ];
   if (requestContext?.attachments.length) constraints.push('Treat chat attachments and file references as first-class context. Cite attachment names in assumptions and evidence sections.');
+  if (shouldConsiderSubagents(command, prompt, repo, requestContext)) constraints.push('For complex or multi-disciplinary work, consider VS Code Copilot subagents: delegate focused research/review tasks to workspace custom agents and synthesize concise results.');
   if (repo?.policyPacks?.files?.length) constraints.push('Apply local Policy Pack rules before generic defaults.');
   if (['nl2sql','sql','sql-review','sql-translate'].includes(command)) {
     constraints.push('Always state SQL dialect, schema assumptions, grain, join strategy, validation SQL, and performance/cost risks.');
@@ -305,6 +307,7 @@ function suggestSkills(command: ProductDevCommand, prompt: string, repo?: RepoCo
   if (/(react|vue|angular|frontend|design\.md|ui)/.test(text)) skills.add('frontend-review');
   if (/(spring|java)/.test(text)) skills.add('springboot-engineering');
   if (/(python|fastapi|flask)/.test(text)) skills.add('python-engineering');
+  if (shouldConsiderSubagents(command, prompt, repo)) skills.add('subagent-orchestration');
   if (command === 'prompt') skills.add('prompt-quality');
   return [...skills];
 }
@@ -390,4 +393,12 @@ function bullet(items: string[]): string[] {
 
 function unique(items: string[]): string[] {
   return [...new Set(items.map(i => i.trim()).filter(Boolean))];
+}
+
+function shouldConsiderSubagents(command: ProductDevCommand, prompt: string, repo?: RepoContext, requestContext?: RequestContext): boolean {
+  const text = `${command} ${prompt} ${repo?.techStack.join(' ') ?? ''}`.toLowerCase();
+  const complexCommands: ProductDevCommand[] = ['plan','prd','story-split','frontend','backend','springboot','python','data','dq','reconcile','lineage','pipeline','data-review','sql-review','sql-translate','nl2sql','design-md','ui-design','review','quality','release','ralph-readiness'];
+  if (complexCommands.includes(command)) return true;
+  if ((requestContext?.attachments.length ?? 0) > 1) return true;
+  return /(复杂|fullstack|全栈|多模块|多系统|security|安全|data|sql|review|评审|migration|迁移|release|上线)/i.test(text);
 }

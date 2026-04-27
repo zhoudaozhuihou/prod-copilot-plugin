@@ -1,8 +1,8 @@
 {
   "name": "company-product-dev-copilot",
-  "displayName": "Company Product Dev Copilot - Ralph PRD Skills Edition",
-  "description": "Enterprise VS Code Copilot Chat participant with Ralph-style PRD decomposition, prd.json conversion, prompt optimization, attachment-aware context, OpenCode-compatible prompts/skills, DESIGN.md UI design, NL2SQL, SQL translation/review, policy packs, and bank-grade data workflows.",
-  "version": "1.4.0",
+  "displayName": "Company Product Dev Copilot - Diagram Workflow Edition",
+  "description": "Enterprise VS Code Copilot Chat participant with diagram-aware SDLC workflows, architecture diagrams, user journey diagrams, Ralph-style PRD loops, OpenCode-compatible prompts/skills, DESIGN.md UI design, NL2SQL, SQL review, policy packs, and bank-grade data workflows.",
+  "version": "1.7.0",
   "publisher": "company-internal",
   "license": "UNLICENSED",
   "engines": {
@@ -288,12 +288,32 @@
             "description": "Scan portable prompts, skills, Copilot shims, and OpenCode shims for migration readiness."
           },
           {
+            "name": "agents-init",
+            "description": "Create VS Code Copilot custom agents under .github/agents for native subagent orchestration."
+          },
+          {
+            "name": "agents-scan",
+            "description": "Scan VS Code Copilot custom agents and report subagent readiness."
+          },
+          {
             "name": "nl2sql",
             "description": "Convert natural language business questions into safe SQL for PostgreSQL, Oracle, BigQuery, MaxCompute/ODPS, MySQL, SQL Server, Snowflake, Databricks/Spark SQL, or Hive."
           },
           {
             "name": "sql-review",
             "description": "Review SQL for correctness, join/grain risk, performance, DQ, reconciliation, privacy, dialect compatibility, and production readiness."
+          },
+          {
+            "name": "architecture-diagram",
+            "description": "Generate architecture diagrams as Mermaid diagram-as-code: system context, container/component, deployment, sequence, data-flow, and trust boundary."
+          },
+          {
+            "name": "journey-diagram",
+            "description": "Generate user journey diagrams as Mermaid diagram-as-code: journey map, user flow, state transition, funnel/friction, and instrumentation."
+          },
+          {
+            "name": "diagram",
+            "description": "Generate the diagram pack required by the current workflow stage and add diagrams to related artifacts."
           }
         ]
       }
@@ -446,6 +466,21 @@
           "type": "boolean",
           "default": true,
           "description": "When true, frontend Ralph stories must include browser or manual visual verification acceptance criteria."
+        },
+        "companyProductDev.subagentsEnabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "When true, complex @product-dev prompts include VS Code Copilot subagent delegation guidance."
+        },
+        "companyProductDev.subagentMode": {
+          "type": "string",
+          "default": "guided",
+          "enum": [
+            "off",
+            "guided",
+            "aggressive"
+          ],
+          "description": "Controls how strongly @product-dev recommends VS Code Copilot subagent delegation for complex tasks."
         }
       }
     }

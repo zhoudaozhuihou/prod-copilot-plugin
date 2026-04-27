@@ -7,6 +7,16 @@ triggers: prompt optimization, user input, raw prompt, vague request, attachment
 
 # Prompt Input Optimizer Skill
 
+## Karpathy Execution Guardrails
+
+Apply the shared `karpathy-guidelines` skill for non-trivial work:
+
+- State assumptions before designing or changing anything.
+- Prefer the smallest useful artifact over speculative completeness.
+- Keep changes surgical and trace every recommendation to the user request or evidence.
+- Convert the task into verifiable success criteria before calling it done.
+- If project policy, user intent, or repository evidence is unclear, ask targeted questions instead of guessing.
+
 ## When to use
 
 Use this skill before executing any command that depends on user-provided natural language. It is especially important for `/nl2sql`, `/sql-review`, `/sql-translate`, `/design-md`, `/frontend`, `/springboot`, `/python`, `/data`, `/dq`, `/review`, `/prompt`, `/summarize`, and `/compress`.

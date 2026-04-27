@@ -1,4 +1,21 @@
+
+## 1.7.0 - Diagram Workflow Edition
+
+- Added `/architecture-diagram`, `/journey-diagram`, and `/diagram`.
+- Added diagram-aware output schemas to major SDLC commands.
+- Added Anthropic-style `diagramming` skill with Mermaid standards and diagram catalog.
+- Added Copilot/OpenCode prompt shims and `diagram-architect` subagent.
+- Added documentation in `docs/DIAGRAM_WORKFLOW_V1_7.md`.
+
 # Changelog
+
+## v1.5.0 - Karpathy-Guided Skills Edition
+
+- Added `karpathy-guidelines` portable skill.
+- Added compact execution contract reference to every domain skill.
+- Updated system prompt and AGENTS.md for OpenCode-compatible execution behavior.
+- Added portable command prompts for Karpathy guideline checks.
+- Added documentation in `docs/KARPATHY_SKILL_OPTIMIZATION.md`.
 
 ## v1.4.0 - Ralph PRD & Loop Skills Edition
 
@@ -113,3 +130,12 @@
 - Added OpenCode and Copilot shims for portable DESIGN.md workflow.
 - Updated `/init frontend` to generate a starter `DESIGN.md` placeholder.
 - Extended repository scanner to include CSS/SCSS/Sass/Less/HTML and theme/design files.
+
+## 1.6.0 - VS Code Copilot Subagent Orchestration
+
+- Added `/agents-init` and `/agents-scan` commands.
+- Added `.github/agents/*.agent.md` workspace custom agents for VS Code Copilot native subagents.
+- Added `product-dev-coordinator` plus specialized worker agents for PRD, UI, frontend, Spring Boot, Python, SQL, bank data engineering, quality, security, and release.
+- Added `agent-resources/skills/subagent-orchestration/` and `agent-resources/prompts/commands/subagent-orchestration.md`.
+- Added subagent delegation guidance to every complex model-backed command.
+- Added OpenCode-compatible `.opencode/commands/subagent-plan.md` for future migration.

@@ -2,7 +2,7 @@
 
 > 企业级 VS Code Copilot Chat `@product-dev` 插件：面向产品设计、前端开发、后端开发、银行级数据开发、质量门禁、Policy Pack 本地规则覆盖、Ralph-style Looping、提示词优化与文档 Review 的全流程研发助手。
 
-当前版本：**v1.4.0 Ralph PRD & Loop Skills Edition**
+当前版本：**v1.6.0 VS Code Copilot Subagent Orchestration Edition**
 
 ---
 
@@ -41,6 +41,7 @@
 | 银行数据工程 | `/datacontract`, `/sttm`, `/dq`, `/reconcile`, `/lineage`, `/privacy`, `/runbook` | 数据契约、STTM、DQ、对账、血缘、隐私、运维 |
 | 工具命令 | `/prompt`, `/summarize`, `/compress`, `/doc-review`, `/rewrite`, `/checklist` | Prompt 优化、总结、压缩、Review、改写、清单 |
 | 自定义 Skill | `/skill-init`, `/skill-scan`, `/skill-run`, `/skill-review` | 本地 Skill 注册、扫描、运行、治理 Review |
+| VS Code Subagents | `/agents-init`, `/agents-scan` | `.github/agents/*.agent.md` 自定义 Agent、复杂任务 subagent 编排 |
 | 循环执行 | `/loop`, `/loop-next`, `/loop-status`, `/loop-stop` | 外部状态文件、TODO、迭代记录 |
 | 交付治理 | `/quality`, `/review`, `/test`, `/diff`, `/release` | 门禁、Review、测试、影响分析、发布包 |
 
@@ -1163,3 +1164,58 @@ agent-resources/skills/prompt-input-optimizer/SKILL.md
 ```
 
 This makes it easier to migrate the same prompt/skill behavior to OpenCode later.
+
+
+## Karpathy-guided skills
+
+v1.5.0 adds `karpathy-guidelines`, inspired by `forrestchang/andrej-karpathy-skills`, as a cross-cutting behavior skill. It applies to all non-trivial engineering commands and reinforces four rules: think before acting, simplicity first, surgical changes, and goal-driven verification. See `docs/KARPATHY_SKILL_OPTIMIZATION.md`.
+
+---
+
+## v1.6 VS Code Copilot Subagent Support
+
+VS Code Copilot supports subagents through custom agents and the built-in `agent` / `runSubagent` tool when that tool is enabled for the current custom agent. This project now generates workspace custom agents under `.github/agents/` and injects subagent delegation guidance into complex `@product-dev` commands.
+
+New commands:
+
+```text
+@product-dev /agents-init
+@product-dev /agents-scan
+```
+
+Recommended setup:
+
+```text
+@product-dev /agents-init
+@product-dev /agents-scan
+```
+
+Then open VS Code Copilot Chat, select the workspace custom agent named `product-dev-coordinator`, and ask it to handle a complex task. The coordinator is configured with the `agent` tool and a restricted worker list:
+
+```text
+prd-planner
+design-system-engineer
+frontend-engineer
+springboot-engineer
+python-engineer
+sql-engineer
+bank-data-engineer
+quality-reviewer
+security-reviewer
+release-manager
+```
+
+For normal `@product-dev` commands, the extension now decides whether a task is complex enough to recommend subagents. If yes, the compiled prompt includes a `Subagent Delegation Guidance` section. If native VS Code subagents are available, the coordinator can run the workers. If not, the same section becomes a manual delegation plan.
+
+See `docs/VS_CODE_COPILOT_SUBAGENTS.md` for the full design.
+
+
+## Diagram Workflow v1.7
+
+New commands:
+
+- `@product-dev /architecture-diagram` — generates system context, container/component, deployment, sequence, data-flow, security/trust-boundary, and observability diagrams.
+- `@product-dev /journey-diagram` — generates user journey, user flow, state transition, funnel/friction, and instrumentation diagrams.
+- `@product-dev /diagram` — generates the minimum useful diagram pack for the current SDLC step.
+
+All major product, frontend, backend, API, data, quality, release, and runbook artifacts now include a `Required Diagrams` section when visual documentation is useful. Mermaid is the default format so diagrams are portable to GitHub, VS Code, OpenCode, and documentation sites.

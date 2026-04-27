@@ -24,6 +24,7 @@ import { optimizeUserInput, renderOptimizedUserInput } from '../prompt/user-inpu
 import { loadApplicableSkills, renderSkillsForPrompt } from '../skills/skill-loader';
 import { loadPortablePromptContext } from '../resources/portable-resource-loader';
 import { renderRequestContext } from '../context/request-context';
+import { renderSubagentGuidance } from '../subagents/subagent-orchestrator';
 
 /**
  * Standard AI artifact command pipeline.
@@ -54,11 +55,13 @@ export async function runAiArtifactCommand(args: CommandArgs, command: ProductDe
   // This normalizes vague input into goal/scope/constraints/missing questions/output expectations.
   const optimized = optimizeUserInput(command, args.userPrompt, repo, args.requestContext);
   const skills = await loadApplicableSkills(workspaceRoot, command, optimized);
+  const subagentGuidance = renderSubagentGuidance(command, optimized, repo);
   const portablePromptContext = await loadPortablePromptContext(workspaceRoot, command);
   const enrichedPrompt = [
     args.userPrompt,
     renderOptimizedUserInput(optimized),
     renderRequestContext(args.requestContext),
+    subagentGuidance,
     portablePromptContext,
     renderSkillsForPrompt(skills)
   ].join('\n\n');

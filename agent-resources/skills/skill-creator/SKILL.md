@@ -7,6 +7,16 @@ triggers: skill,SKILL.md,技能,提示词能力,agent skill,opencode skill,claud
 
 # Skill Creator
 
+## Karpathy Execution Guardrails
+
+Apply the shared `karpathy-guidelines` skill for non-trivial work:
+
+- State assumptions before designing or changing anything.
+- Prefer the smallest useful artifact over speculative completeness.
+- Keep changes surgical and trace every recommendation to the user request or evidence.
+- Convert the task into verifiable success criteria before calling it done.
+- If project policy, user intent, or repository evidence is unclear, ask targeted questions instead of guessing.
+
 ## Use this skill when
 
 The task involves creating, improving, testing, packaging, or reviewing a reusable skill.

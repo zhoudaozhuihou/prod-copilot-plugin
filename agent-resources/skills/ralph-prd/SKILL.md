@@ -5,6 +5,16 @@ description: Convert PRDs or feature specs into Ralph-compatible prd.json with d
 
 # Ralph PRD Converter Skill
 
+## Karpathy Execution Guardrails
+
+Apply the shared `karpathy-guidelines` skill for non-trivial work:
+
+- State assumptions before designing or changing anything.
+- Prefer the smallest useful artifact over speculative completeness.
+- Keep changes surgical and trace every recommendation to the user request or evidence.
+- Convert the task into verifiable success criteria before calling it done.
+- If project policy, user intent, or repository evidence is unclear, ask targeted questions instead of guessing.
+
 ## Job
 
 Convert a Markdown PRD, feature design, task list, or user request into a Ralph-compatible `scripts/ralph/prd.json`.

@@ -7,6 +7,16 @@ triggers: sql translate,方言转换,oracle,bigquery,maxcompute,postgresql,hive,
 
 # SQL Translate
 
+## Karpathy Execution Guardrails
+
+Apply the shared `karpathy-guidelines` skill for non-trivial work:
+
+- State assumptions before designing or changing anything.
+- Prefer the smallest useful artifact over speculative completeness.
+- Keep changes surgical and trace every recommendation to the user request or evidence.
+- Convert the task into verifiable success criteria before calling it done.
+- If project policy, user intent, or repository evidence is unclear, ask targeted questions instead of guessing.
+
 ## Workflow
 
 1. Identify source and target dialect. If either is missing, ask before producing final SQL.

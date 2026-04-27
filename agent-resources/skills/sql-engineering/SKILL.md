@@ -7,6 +7,16 @@ triggers: sql,nl2sql,postgresql,oracle,bigquery,maxcompute,odps,hive,snowflake,d
 
 # SQL Engineering
 
+## Karpathy Execution Guardrails
+
+Apply the shared `karpathy-guidelines` skill for non-trivial work:
+
+- State assumptions before designing or changing anything.
+- Prefer the smallest useful artifact over speculative completeness.
+- Keep changes surgical and trace every recommendation to the user request or evidence.
+- Convert the task into verifiable success criteria before calling it done.
+- If project policy, user intent, or repository evidence is unclear, ask targeted questions instead of guessing.
+
 ## Use this skill when
 
 The task needs SQL that is correct, performant, auditable, and safe to run in enterprise data environments.

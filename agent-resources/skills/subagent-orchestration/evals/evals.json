@@ -1,0 +1,6 @@
+{
+  "cases": [
+    {"name": "SQL review selects SQL/data/security subagents", "expected": ["sql-engineer", "bank-data-engineer", "security-reviewer"]},
+    {"name": "Full-stack feature selects PRD/frontend/backend/data reviewers", "expected": ["prd-planner", "frontend-engineer", "springboot-engineer", "bank-data-engineer"]}
+  ]
+}

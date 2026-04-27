@@ -32,8 +32,10 @@ export const ORDERED_WORKFLOW: WorkflowStep[] = [
   { command: 'plan', label: 'Delivery plan', purpose: 'Create ordered execution plan and choose relevant tracks.', artifact: 'docs/product/delivery-plan.md', next: 'brainstorm', category: 'workflow' },
   { command: 'brainstorm', label: 'Product discovery', purpose: 'Generate opportunities, alternatives, MVP candidates, and experiments.', artifact: 'docs/product/brainstorm.md', next: 'feature', category: 'workflow' },
   { command: 'feature', label: 'Feature design', purpose: 'Converge ideas into feature scope, flow, states, acceptance criteria, and metrics.', artifact: 'docs/product/feature-design.md', next: 'prd', category: 'workflow' },
-  { command: 'prd', label: 'PRD', purpose: 'Produce engineering-ready requirements, non-functional needs, permissions, and risks.', artifact: 'docs/prd/generated-prd.md', next: 'journey', category: 'workflow' },
-  { command: 'journey', label: 'Journey analysis', purpose: 'Map user path, decision points, friction, missing states, and instrumentation.', artifact: 'docs/journey/user-journey.md', next: 'design-md', category: 'workflow' },
+  { command: 'prd', label: 'PRD', purpose: 'Produce engineering-ready requirements, non-functional needs, permissions, and risks.', artifact: 'docs/prd/generated-prd.md', next: 'architecture-diagram', category: 'workflow' },
+  { command: 'architecture-diagram', label: 'Architecture diagrams', purpose: 'Generate C4-style architecture, integration, deployment, data-flow, and trust-boundary diagrams.', artifact: 'docs/diagrams/architecture-diagrams.md', next: 'journey', category: 'workflow' },
+  { command: 'journey', label: 'Journey analysis', purpose: 'Map user path, decision points, friction, missing states, and instrumentation.', artifact: 'docs/journey/user-journey.md', next: 'journey-diagram', category: 'workflow' },
+  { command: 'journey-diagram', label: 'Journey diagrams', purpose: 'Generate journey map, flow, state transition, funnel/friction, and instrumentation diagrams.', artifact: 'docs/diagrams/user-journey-diagrams.md', next: 'design-md', category: 'workflow' },
   { command: 'design-md', label: 'DESIGN.md extraction', purpose: 'Extract or generate a Stitch-compatible DESIGN.md from existing frontend UI code or user design intent.', artifact: 'DESIGN.md + docs/frontend/DESIGN.md', next: 'api', category: 'workflow' },
   { command: 'api', label: 'API contract', purpose: 'Design or validate contract-first API with auth, errors, pagination, audit, compatibility.', artifact: 'docs/api/api-contract.md', next: 'frontend', category: 'workflow' },
   { command: 'frontend', label: 'Frontend design', purpose: 'Plan page, component, state, API integration, UX states, tests, accessibility.', artifact: 'docs/frontend/frontend-design-and-implementation.md', next: 'backend', category: 'workflow' },
@@ -78,6 +80,7 @@ export const TOOL_COMMANDS: WorkflowStep[] = [
   { command: 'doc-review', label: 'Content / prompt / design review', purpose: 'Review documents, prompts, PRDs, design specs, code plans, SQL, or release notes with structured findings.', artifact: 'docs/tools/review-report.md', next: 'rewrite', category: 'tool' },
   { command: 'rewrite', label: 'Content rewrite', purpose: 'Rewrite or upgrade content for executive, technical, product, banking-grade, or implementation-ready use.', artifact: 'docs/tools/rewrite.md', next: 'doc-review', category: 'tool' },
   { command: 'ui-design', label: 'UI design generator', purpose: 'Generate implementation-ready UI design guidance using DESIGN.md or user design direction.', artifact: 'docs/frontend/ui-design-spec.md', next: 'frontend', category: 'tool' },
+  { command: 'diagram', label: 'Project diagram pack', purpose: 'Generate the diagram set required by the current workflow step using Mermaid diagram-as-code.', artifact: 'docs/diagrams/project-diagram-pack.md', next: 'plan', category: 'tool' },
   { command: 'checklist', label: 'Checklist generator', purpose: 'Generate execution checklists, review checklists, Definition of Done, handoff checklists, and acceptance checklists.', artifact: 'docs/tools/checklist.md', next: 'quality', category: 'tool' },
   { command: 'nl2sql', label: 'Natural language to SQL', purpose: 'Convert business questions into safe, dialect-aware SQL with validation, DQ, reconciliation, and performance notes.', artifact: 'docs/06-data/sql/nl2sql-result.md', next: 'sql-review', category: 'tool' },
   { command: 'sql-translate', label: 'SQL translation', purpose: 'Translate SQL across Oracle, PostgreSQL, BigQuery, MaxCompute/ODPS, MySQL, SQL Server, Hive, Snowflake, and Databricks.', artifact: 'docs/06-data/sql-translation/sql-translation-report.md', next: 'sql-review', category: 'tool' },
@@ -125,27 +128,27 @@ export function selectLoopSequence(userPrompt: string): ProductDevCommand[] {
   const prefix: ProductDevCommand[] = wantsTools ? ['prompt', 'summarize'] : [];
   const wantsRalph = text.includes('ralph') || text.includes('prd.json') || text.includes('autonomous') || text.includes('循环') || text.includes('一轮') || text.includes('passes:false');
   if (wantsRalph) {
-    return [...prefix, 'resources-scan', 'skill-scan', 'policy-scan', 'scan', 'feature', 'prd', 'story-split', 'prd-json', 'ralph-readiness', 'loop'];
+    return [...prefix, 'resources-scan', 'skill-scan', 'policy-scan', 'scan', 'feature', 'prd', 'architecture-diagram', 'story-split', 'prd-json', 'ralph-readiness', 'loop'];
   }
   if (wantsDesignMd) {
-    return [...prefix, 'resources-scan', 'skill-scan', 'policy-scan', 'scan', 'design-md', 'ui-design', 'frontend', 'review'];
+    return [...prefix, 'resources-scan', 'skill-scan', 'policy-scan', 'scan', 'design-md', 'ui-design', 'journey-diagram', 'frontend', 'review'];
   }
   if (wantsSqlTools) {
     return [...prefix, 'resources-scan', 'skill-scan', 'policy-scan', 'scan', 'nl2sql', 'sql-review', 'sql-translate', 'dq', 'reconcile', 'lineage', 'data-review'];
   }
   if (text.includes('frontend') || text.includes('react') || text.includes('ui')) {
-    return [...prefix, 'policy-scan', 'policy-review', 'scan', 'plan', 'brainstorm', 'feature', 'prd', 'story-split', 'prd-json', 'ralph-readiness', 'journey', 'design-md', 'api', 'frontend', 'task', 'test', 'quality', 'review', 'diff', 'release'];
+    return [...prefix, 'policy-scan', 'policy-review', 'scan', 'plan', 'brainstorm', 'feature', 'prd', 'story-split', 'prd-json', 'ralph-readiness', 'architecture-diagram', 'journey', 'journey-diagram', 'design-md', 'api', 'frontend', 'task', 'test', 'quality', 'review', 'diff', 'release'];
   }
   if (text.includes('spring') || text.includes('java')) {
-    return [...prefix, 'policy-scan', 'policy-review', 'scan', 'plan', 'feature', 'prd', 'story-split', 'prd-json', 'ralph-readiness', 'api', 'springboot', 'task', 'test', 'quality', 'review', 'diff', 'release'];
+    return [...prefix, 'policy-scan', 'policy-review', 'scan', 'plan', 'feature', 'prd', 'story-split', 'prd-json', 'ralph-readiness', 'architecture-diagram', 'api', 'springboot', 'task', 'test', 'quality', 'review', 'diff', 'release'];
   }
   if (text.includes('python') || text.includes('fastapi') || text.includes('flask')) {
-    return [...prefix, 'policy-scan', 'policy-review', 'scan', 'plan', 'feature', 'prd', 'story-split', 'prd-json', 'ralph-readiness', 'api', 'python', 'task', 'test', 'quality', 'review', 'diff', 'release'];
+    return [...prefix, 'policy-scan', 'policy-review', 'scan', 'plan', 'feature', 'prd', 'story-split', 'prd-json', 'ralph-readiness', 'architecture-diagram', 'api', 'python', 'task', 'test', 'quality', 'review', 'diff', 'release'];
   }
   if (text.includes('data') || text.includes('sql') || text.includes('postgres') || text.includes('oracle') || text.includes('bigquery') || text.includes('maxcompute') || text.includes('数据') || text.includes('对账') || text.includes('血缘') || text.includes('质量')) {
-    return [...prefix, 'policy-scan', 'policy-review', 'scan', 'plan', 'feature', 'prd', 'story-split', 'prd-json', 'ralph-readiness', 'data', 'datacontract', 'sttm', 'dbschema', 'sql', 'dq', 'reconcile', 'lineage', 'pipeline', 'scheduler', 'data-test', 'privacy', 'data-review', 'task', 'test', 'quality', 'review', 'diff', 'release', 'runbook'];
+    return [...prefix, 'policy-scan', 'policy-review', 'scan', 'plan', 'feature', 'prd', 'story-split', 'prd-json', 'ralph-readiness', 'architecture-diagram', 'data', 'datacontract', 'sttm', 'dbschema', 'sql', 'dq', 'reconcile', 'lineage', 'pipeline', 'scheduler', 'data-test', 'privacy', 'data-review', 'task', 'test', 'quality', 'review', 'diff', 'release', 'runbook'];
   }
-  return [...prefix, 'policy-scan', 'policy-review', 'scan', 'plan', 'brainstorm', 'feature', 'prd', 'story-split', 'prd-json', 'ralph-readiness', 'journey', 'design-md', 'api', 'frontend', 'backend', 'data', 'datacontract', 'sttm', 'dbschema', 'sql', 'dq', 'reconcile', 'lineage', 'pipeline', 'scheduler', 'data-test', 'privacy', 'data-review', 'task', 'test', 'quality', 'review', 'diff', 'release', 'runbook'];
+  return [...prefix, 'policy-scan', 'policy-review', 'scan', 'plan', 'brainstorm', 'feature', 'prd', 'story-split', 'prd-json', 'ralph-readiness', 'architecture-diagram', 'journey', 'journey-diagram', 'design-md', 'api', 'frontend', 'backend', 'data', 'datacontract', 'sttm', 'dbschema', 'sql', 'dq', 'reconcile', 'lineage', 'pipeline', 'scheduler', 'data-test', 'privacy', 'data-review', 'task', 'test', 'quality', 'review', 'diff', 'release', 'runbook'];
 }
 
 export function getWorkflowStageLabel(command: ProductDevCommand): string {

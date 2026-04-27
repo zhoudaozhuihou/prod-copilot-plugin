@@ -49,6 +49,8 @@ export function artifactPathFor(command: ProductDevCommand): string {
     case 'skill-review': return 'skills/skill-review.md';
     case 'resources-init': return 'agent/portable-resources-init.md';
     case 'resources-scan': return 'agent/portable-resources-scan.md';
+    case 'agents-init': return 'agent/subagents-init.md';
+    case 'agents-scan': return 'agent/subagents-scan.md';
     case 'prompt': return 'tools/prompt-optimization.md';
     case 'summarize': return 'tools/content-summary.md';
     case 'compress': return 'tools/context-compression.md';
@@ -64,6 +66,9 @@ export function artifactPathFor(command: ProductDevCommand): string {
     case 'journey': return 'journey/user-journey.md';
     case 'design-md': return 'frontend/DESIGN.md';
     case 'ui-design': return 'frontend/ui-design-spec.md';
+    case 'architecture-diagram': return 'diagrams/architecture-diagrams.md';
+    case 'journey-diagram': return 'diagrams/user-journey-diagrams.md';
+    case 'diagram': return 'diagrams/project-diagram-pack.md';
     case 'frontend': return 'frontend/frontend-design-and-implementation.md';
     case 'backend': return 'backend/backend-design.md';
     case 'springboot': return 'backend/springboot-implementation-plan.md';
@@ -125,6 +130,8 @@ function titleFor(command: ProductDevCommand): string {
     'skill-review': 'Custom Skill Review',
     'resources-init': 'Portable Agent Resource Initialization',
     'resources-scan': 'Portable Agent Resource Scan',
+    'agents-init': 'VS Code Copilot Subagent Initialization',
+    'agents-scan': 'VS Code Copilot Subagent Scan',
     attachments: 'Attachment Context Report',
     datacontract: 'Bank Data Contract',
     sttm: 'Source-to-Target Mapping',
@@ -163,6 +170,9 @@ function titleFor(command: ProductDevCommand): string {
     journey: 'User Journey Analysis',
     'design-md': 'DESIGN.md Design System',
     'ui-design': 'UI Design Specification',
+    'architecture-diagram': 'Architecture Diagram Pack',
+    'journey-diagram': 'User Journey Diagram Pack',
+    diagram: 'Project Diagram Pack',
     frontend: 'Frontend Design and Implementation Plan',
     backend: 'Backend Service Design',
     springboot: 'Java Spring Boot Implementation Plan',
@@ -208,11 +218,27 @@ DESIGN.md guardrails:
 - Follow the Stitch-compatible extended structure: visual theme, color roles, typography, components, layout, elevation, do/don't guardrails, responsive behavior, and agent prompt guide.
 - DESIGN.md must be useful for Copilot, OpenCode, Stitch-style design workflows, and future UI generation.
 
+Diagram-as-code guardrails:
+- Use Mermaid by default because it is portable across GitHub Markdown, VS Code Markdown preview, OpenCode workflows, and documentation sites.
+- Prefer diagram-as-code over embedded images so diagrams can be reviewed, diffed, and versioned.
+- Every diagram must have: purpose, source evidence, Mermaid code block, interpretation notes, and maintenance owner.
+- Do not invent architecture components, screens, data stores, queues, or third-party systems that are not present in repo context or user input; mark unknowns as assumptions.
+- For architecture diagrams, include relevant C4-style levels: context, container, component, deployment, sequence, data flow, and trust boundary when applicable.
+- For journey diagrams, include user role, entry point, steps, decisions, friction, telemetry, and success/failure states.
+- For data diagrams, include data lineage, ERD, pipeline DAG, reconciliation flow, DQ control flow, and privacy boundary when applicable.
+
 Policy pack guardrails:
 - Company, department, country, project, and environment policy files under .product-dev/policy-packs override generic defaults.
 - Apply policy precedence exactly as configured. When rules conflict, state the conflict and follow the highest-precedence applicable policy.
 - If a required local policy is missing, ask for it explicitly and avoid inventing company-specific thresholds.
 - DQ rules, quality gates, privacy constraints, release gates, naming conventions, and review checklists must reference loaded policy files where possible.
+
+VS Code Copilot subagent guardrails:
+- VS Code supports native subagents through custom agents and the \`agent\` / \`runSubagent\` tool when the current chat agent has that tool enabled.
+- For complex work, prefer a coordinator-worker pattern: delegate narrow research/review subtasks to specialized agents and synthesize concise results.
+- Use subagents for isolated codebase research, parallel review perspectives, multi-model/role consensus, SQL/data/security/release review, and Ralph readiness validation.
+- Do not use nested subagents unless explicitly configured by the user. Do not delegate broad, unsafe, or policy-approval decisions.
+- If native subagent execution is unavailable, produce a \`Subagent Delegation Plan\` that the user can run with the generated \`.github/agents/*.agent.md\` custom agents.
 
 Portable prompt / skill resource guardrails:
 - Treat agent-resources/ as tool-neutral prompt/skill source of truth for future OpenCode migration.
@@ -466,13 +492,23 @@ function constraintsFor(command: ProductDevCommand): string[] {
     'Include risks, gaps, and open questions.',
     'Use enterprise-grade terminology and avoid vague advice.',
     'When generating implementation guidance, include file-level changes and acceptance criteria.',
-    'Every artifact must include a final section named `Next Command`.'
+    'Every artifact must include a final section named `Next Command`.',
+    'For complex multi-disciplinary tasks, include a \`Subagent Delegation Plan\` or summarize which specialized subagents were used when native VS Code subagents are available.'
   ];
   if (['policy-intake', 'policy-review', 'policy-scan', 'policy-init'].includes(command)) {
     return [...base, 'Never invent company, department, or country thresholds when policy files are missing.', 'Always identify which specific policy file should contain each rule.', 'Always explain precedence and conflict resolution.', 'End with exact user action and next command.'];
   }
   if (['skill-init', 'skill-scan', 'skill-run', 'skill-review'].includes(command)) {
     return [...base, 'Skills must be instruction packs, not arbitrary executable scripts.', 'Each skill should define name, description, appliesTo, triggers, scope, constraints, output format, and quality checks.', 'If a skill is ambiguous or unsafe, ask for a safer rewrite.'];
+  }
+  if (command === 'architecture-diagram') {
+    return [...base, 'Use Mermaid diagram-as-code only unless the user explicitly asks for another notation.', 'Include system context, container/component, deployment, sequence, data-flow, integration, security/trust-boundary, and observability diagrams when applicable.', 'Every diagram must include source evidence and assumptions.', 'Do not invent components; unknown nodes must be labeled TBD or Assumption.'];
+  }
+  if (command === 'journey-diagram') {
+    return [...base, 'Use Mermaid journey, flowchart, stateDiagram, and sequenceDiagram where useful.', 'Include role, entry point, steps, decisions, friction, telemetry, success/failure states, and improvement opportunities.', 'Every journey step must trace to PRD, routes, components, or user input when available.'];
+  }
+  if (command === 'diagram') {
+    return [...base, 'Choose the smallest useful set of diagrams for the current workflow stage.', 'Use Mermaid diagram-as-code with purpose, source evidence, interpretation notes, and maintenance owner for each diagram.', 'Include architecture, user journey, API, data, security, release, or runbook diagrams only when relevant.'];
   }
   if (command === 'nl2sql') {
     return [...base, 'Do not invent table or column names when schema context is missing; provide a clearly labeled draft skeleton if needed.', 'Always identify target dialect and supported engines: PostgreSQL, Oracle, BigQuery, MaxCompute/ODPS, MySQL, SQL Server, Snowflake, Databricks/Spark SQL, Hive.', 'Always include SQL, explanation, validation SQL, DQ/reconciliation checks, privacy/access risks, performance notes, and open questions.'];

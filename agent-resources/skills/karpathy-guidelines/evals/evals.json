@@ -1,0 +1,20 @@
+{
+  "skill_name": "karpathy-guidelines",
+  "evals": [
+    {
+      "id": "kg-001",
+      "prompt": "Implement a broad feature request with ambiguous backend and frontend scope.",
+      "expected_output": "States assumptions, narrows scope, asks only blocking questions, proposes surgical plan with verification."
+    },
+    {
+      "id": "kg-002",
+      "prompt": "Review a SQL query that may have join amplification and missing partition filters.",
+      "expected_output": "Does not rewrite everything; identifies assumptions, minimal fixes, validation SQL, and verification checks."
+    },
+    {
+      "id": "kg-003",
+      "prompt": "Convert a vague PRD into Ralph-sized stories.",
+      "expected_output": "Splits stories, orders dependencies, adds verifiable acceptance criteria, avoids speculative tasks."
+    }
+  ]
+}

@@ -122,6 +122,7 @@ function validateSkill(frontmatter: Record<string, string>, body: string, resour
   const lines = body.split(/\r?\n/).length;
   if (lines > 500) warnings.push('SKILL.md body exceeds 500 lines; move detail to references/');
   if (!/when to use|use this skill|workflow|process|steps|output/i.test(body)) warnings.push('Body should explain workflow and output behavior');
+  if (!/Karpathy Execution Guardrails|think before|simplicity first|surgical|success criteria|verification/i.test(body)) warnings.push('Consider adding Karpathy execution guardrails: assumptions, simplicity, surgical scope, and verification.');
   if (!/security|privacy|do not|avoid|permission|trusted|audit/i.test(body)) warnings.push('Consider adding safety/privacy boundaries');
   if (!resources.some(r => r.type === 'eval')) warnings.push('No evals/ resource found');
   return warnings;

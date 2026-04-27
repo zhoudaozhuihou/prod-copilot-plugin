@@ -53,7 +53,11 @@ const PORTABLE_RESOURCE_DIRECTORIES: string[] = [
     "agent-resources/skills/design-md",
     "agent-resources/skills/design-md/references",
     "agent-resources/skills/design-md/examples",
-    "agent-resources/skills/design-md/evals"
+    "agent-resources/skills/design-md/evals",
+    "agent-resources/skills/diagramming",
+    "agent-resources/skills/diagramming/references",
+    "agent-resources/skills/diagramming/examples",
+    "agent-resources/skills/diagramming/evals"
 ];
 
 const PORTABLE_RESOURCE_FILES: Record<string, string> = {
@@ -127,6 +131,10 @@ const PORTABLE_RESOURCE_FILES: Record<string, string> = {
     ".product-dev/prompts/commands/prd-json.md": "# PRD JSON Command Prompt\n\nConvert PRD Markdown or feature design into Ralph-compatible `scripts/ralph/prd.json`.\n\n## Contract\n\nReturn a conversion summary and valid JSON with:\n\n- project\n- branchName: `ralph/<feature-name>`\n- description\n- userStories[] with id, title, description, acceptanceCriteria, priority, passes:false, notes:\"\"\n\n## Validation\n\nCheck JSON parseability, story size, dependency ordering, acceptance criteria quality, and quality evidence.\n",
     ".product-dev/prompts/commands/story-split.md": "# Story Split Command Prompt\n\nSplit PRD, feature design, or a broad request into Ralph-sized stories.\n\n## Rules\n\n- One story per fresh agent context.\n- Dependency order first, business value second.\n- Split too-large stories until each has a focused implementation boundary.\n- Each story has ID, title, type, description, acceptance criteria, dependency, and validation evidence.\n- Do not combine unrelated frontend, backend, data, and release work into one story.\n",
     ".product-dev/prompts/commands/ralph-readiness.md": "# Ralph Readiness Command Prompt\n\nReview whether the project is ready for Ralph-style loop execution.\n\n## Check\n\n- PRD completeness\n- prd.json schema and story size\n- dependency ordering\n- acceptance criteria verifiability\n- quality commands available\n- progress.txt append-only memory\n- AGENTS.md / CLAUDE.md reusable pattern guidance\n- branchName and git readiness\n- stop condition and COMPLETE behavior\n\nReturn a readiness decision: Approved, Approved with Conditions, or Not Ready.\n",
+    "agent-resources/prompts/commands/architecture-diagram.md": "# Architecture Diagram Command Prompt\n\nGenerate evidence-backed Mermaid architecture diagrams: system context, container/component, deployment, sequence, data-flow, trust boundary, and observability/failure flow. Include purpose, source evidence, Mermaid code, interpretation notes, owner, and update trigger.\n",
+    "agent-resources/prompts/commands/journey-diagram.md": "# Journey Diagram Command Prompt\n\nGenerate evidence-backed Mermaid user journey diagrams: journey map, user flow, state transition, funnel/friction, key interaction sequence, and instrumentation event flow.\n",
+    "agent-resources/prompts/commands/diagram.md": "# Project Diagram Pack Prompt\n\nChoose and generate the smallest useful Mermaid diagram set for the current SDLC artifact. Do not invent unsupported systems or screens.\n",
+    "agent-resources/skills/diagramming/SKILL.md": "---\nname: diagramming\ndescription: Generate and review Mermaid diagram-as-code for architecture, user journey, UI flow, API sequence, data lineage, ERD, pipeline DAG, DQ control, reconciliation, release, rollback, runbook, and incident workflows.\n---\n\n# Diagramming Skill\n\nUse Mermaid by default. Ground every node and edge in repo evidence, user input, PRD, DESIGN.md, SQL, or stated assumptions. Include purpose, source evidence, interpretation notes, owner, and update trigger.\n",
 };
 
 export async function initializePortableAgentResources(root: string): Promise<PortableResourceInitResult> {

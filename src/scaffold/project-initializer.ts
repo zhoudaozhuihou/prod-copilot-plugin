@@ -18,6 +18,7 @@ import { ensureDir, exists } from '../utils/fs-utils';
 import { initializePolicyPacks } from '../policies/policy-pack-initializer';
 import { initializeSkills } from '../skills/skill-initializer';
 import { initializePortableAgentResources } from '../resources/portable-resource-initializer';
+import { initializeSubagentAssets } from '../subagents/subagent-orchestrator';
 
 export type InitTrack = 'frontend' | 'backend' | 'data';
 export type FrontendStack = 'react' | 'vue' | 'angular' | 'generic';
@@ -211,6 +212,12 @@ export async function initializeProjectScaffold(root: string, userPrompt: string
   createdDirectories.push(...portableResult.createdDirectories);
   createdFiles.push(...portableResult.createdFiles);
 
+  if (spec.agentTooling.includes('copilot')) {
+    const subagentResult = await initializeSubagentAssets(root);
+    createdDirectories.push(...subagentResult.createdDirectories);
+    createdFiles.push(...subagentResult.createdFiles);
+  }
+
   const markdown = renderInitReport(spec, createdDirectories, createdFiles, questionFile, projectProfileFile, sessionFile);
   return { spec, tracks, createdDirectories, createdFiles, questionFile, projectProfileFile, sessionFile, markdown };
 }
@@ -225,6 +232,8 @@ async function createCommonScaffold(
     'docs/00-intake',
     'docs/01-product',
     'docs/02-architecture',
+    'docs/02-architecture/diagrams',
+    'docs/diagrams',
     'docs/03-api',
     'docs/07-quality',
     'docs/08-release',
@@ -239,6 +248,7 @@ async function createCommonScaffold(
   await writeIfMissing('docs/decisions/0001-project-initialization.md', `# ADR-0001: Project Initialization\n\n## Status\n\nDraft\n\n## Requested scaffold\n\n\`${spec.rawPrompt || '@product-dev /init'}\`\n\n## Detected tracks\n\n${spec.tracks.length ? spec.tracks.map(t => `- ${t}`).join('\n') : '- Pending user decision'}\n\n## Detected stacks\n\n- Frontend: ${spec.frontendStacks.join(', ') || 'TBD'}\n- Backend: ${spec.backendStacks.join(', ') || 'TBD'}\n- Data engines: ${spec.dataEngines.join(', ') || 'TBD'}\n\n## Missing decisions\n\n${spec.missingDecisions.length ? spec.missingDecisions.map(d => `- ${d}`).join('\n') : '- None'}\n`);
 
   await writeIfMissing('docs/agent/AI_DELIVERY_RULES.md', buildAgentDeliveryRules(spec));
+  await writeIfMissing('docs/diagrams/README.md', '# Project Diagrams\n\nUse `@product-dev /architecture-diagram`, `@product-dev /journey-diagram`, or `@product-dev /diagram` to generate Mermaid diagram-as-code artifacts. Diagrams should include purpose, source evidence, assumptions, owner, and update trigger.\n');
 }
 
 async function createAgentToolingScaffold(
@@ -279,6 +289,7 @@ async function createAgentToolingScaffold(
     await writeIfMissing('.opencode/agents/product-architect.md', buildOpencodeAgent('product-architect', 'Own product requirements, scope, user journey, and acceptance criteria.'));
     await writeIfMissing('.opencode/agents/code-reviewer.md', buildOpencodeAgent('code-reviewer', 'Review code for correctness, security, maintainability, testability, and policy compliance.'));
     await writeIfMissing('.opencode/agents/design-system-engineer.md', buildOpencodeAgent('design-system-engineer', 'Own DESIGN.md extraction/generation, visual tokens, UI component rules, accessibility, and frontend design consistency.'));
+    await writeIfMissing('.opencode/agents/diagram-architect.md', buildOpencodeAgent('diagram-architect', 'Own Mermaid diagram-as-code for architecture, journey, API, data, release, runbook, and incident flows.'));
     await writeIfMissing('.opencode/agents/sql-engineer.md', buildOpencodeAgent('sql-engineer', 'Own NL2SQL, SQL dialect translation, SQL review, DQ, reconciliation, lineage, and SQL performance across PostgreSQL, Oracle, BigQuery, MaxCompute/ODPS, Hive, Snowflake, and Databricks.'));
     if (spec.tracks.includes('data')) {
       await writeIfMissing('.opencode/agents/data-engineer.md', buildOpencodeAgent('data-engineer', 'Own bank-grade data contract, STTM, SQL, DQ, reconciliation, lineage, scheduler, privacy, and runbook design.'));
@@ -287,6 +298,9 @@ async function createAgentToolingScaffold(
     await writeIfMissing('.opencode/commands/review.md', buildOpencodeCommand('review', 'Review the current changes against PRD, API/data contracts, tests, and local policy packs.'));
     await writeIfMissing('.opencode/commands/loop-next.md', buildOpencodeCommand('loop-next', 'Read .product-dev/ralph-loop.local.json and continue the next pending task with a small, reviewable change.'));
     await writeIfMissing('.opencode/commands/design-md.md', buildOpencodeCommand('design-md', 'Read agent-resources/prompts/commands/design-md.md and agent-resources/skills/design-md/SKILL.md. Generate or update root DESIGN.md from frontend code evidence or user visual direction.'));
+    await writeIfMissing('.opencode/commands/architecture-diagram.md', buildOpencodeCommand('architecture-diagram', 'Read agent-resources/prompts/commands/architecture-diagram.md and agent-resources/skills/diagramming/SKILL.md. Generate evidence-backed Mermaid architecture diagrams.'));
+    await writeIfMissing('.opencode/commands/journey-diagram.md', buildOpencodeCommand('journey-diagram', 'Read agent-resources/prompts/commands/journey-diagram.md and agent-resources/skills/diagramming/SKILL.md. Generate evidence-backed Mermaid user journey diagrams.'));
+    await writeIfMissing('.opencode/commands/diagram.md', buildOpencodeCommand('diagram', 'Read agent-resources/prompts/commands/diagram.md and agent-resources/skills/diagramming/SKILL.md. Generate the minimum useful Mermaid diagram pack for the current stage.'));
     await writeIfMissing('.opencode/commands/nl2sql.md', buildOpencodeCommand('nl2sql', 'Read agent-resources/prompts/commands/nl2sql.md and convert the business question into dialect-aware SQL with validation, DQ, reconciliation, privacy, and performance notes.'));
     await writeIfMissing('.opencode/commands/sql-translate.md', buildOpencodeCommand('sql-translate', 'Read agent-resources/prompts/commands/sql-translate.md and translate SQL between mainstream dialects including PostgreSQL, Oracle, BigQuery, MaxCompute/ODPS, Hive, Snowflake, and Databricks.'));
     await writeIfMissing('.opencode/commands/sql-review.md', buildOpencodeCommand('sql-review', 'Read agent-resources/prompts/commands/sql-review.md and review SQL for correctness, join/grain safety, DQ, reconciliation, privacy, performance, and production readiness.'));

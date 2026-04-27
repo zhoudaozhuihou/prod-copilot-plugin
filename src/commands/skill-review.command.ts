@@ -23,12 +23,13 @@ export async function runSkillReviewCommand(args: CommandArgs): Promise<void> {
       'Treat description as the primary trigger mechanism; assess whether it is specific, pushy enough, and not overbroad.',
       'Check progressive disclosure: SKILL.md should be concise, with detailed references/scripts/evals split into resource directories.',
       'Check if the skill explains when to use it, workflow steps, output format, examples, safety boundaries, and next-step behavior.',
+      'Check Karpathy-style execution behavior: assumptions before action, simplicity first, surgical scope, and verifiable success criteria.',
       'Check eval readiness: each skill should have 2-3 realistic eval prompts and, where objective, assertions.',
       'Check security: no hidden network calls, exfiltration, unsafe commands, secrets, or surprising behavior.',
       'Provide targeted rewrite patches for the worst 3 issues instead of rewriting every skill blindly.',
       'Return Markdown only.'
     ],
-    outputSchema: '# Custom Skill Review\n\n## 1. Executive Summary\n## 2. Skill Inventory\n## 3. Triggering / Description Findings\n## 4. Progressive Disclosure Findings\n## 5. Instruction Quality Findings\n## 6. Eval Coverage Findings\n## 7. Security / Governance Findings\n## 8. Required Fixes\n## 9. Recommended Skill Rewrites\n## 10. Next Command',
+    outputSchema: '# Custom Skill Review\n\n## 1. Executive Summary\n## 2. Skill Inventory\n## 3. Triggering / Description Findings\n## 4. Progressive Disclosure Findings\n## 5. Instruction Quality Findings\n## 6. Eval Coverage Findings\n## 7. Security / Governance Findings\n## 8. Karpathy Execution Findings\n## 9. Required Fixes\n## 10. Recommended Skill Rewrites\n## 11. Next Command',
     artifactPath: 'skills/skill-review.md',
     workflowStage: 'Custom Skill Governance',
     nextStepHint: 'Next recommended command: edit the flagged SKILL.md files, then run `@product-dev /skill-scan` and `@product-dev /skill-review` again.'

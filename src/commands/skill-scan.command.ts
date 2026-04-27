@@ -19,7 +19,7 @@ export async function runSkillScanCommand(args: CommandArgs): Promise<void> {
 - Required metadata: \`name\`, \`description\`.
 - The \`description\` should be a strong trigger description, not a short label.
 - Put long domain detail into \`references/\`, deterministic helpers into \`scripts/\`, and tests into \`evals/\`.
-- Run \`@product-dev /skill-review\` to get a severity-based review.
+- Run \`@product-dev /skill-review\` to get a severity-based review.\n- Non-trivial engineering skills should reference the Karpathy behavior contract: assumptions, simplicity, surgical scope, and verification.
 
 ## Next Command
 

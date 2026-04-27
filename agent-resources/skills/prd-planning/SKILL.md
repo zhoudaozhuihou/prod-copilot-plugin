@@ -5,6 +5,16 @@ description: Generate implementation-ready PRDs with Ralph-sized user stories, e
 
 # PRD Planning Skill
 
+## Karpathy Execution Guardrails
+
+Apply the shared `karpathy-guidelines` skill for non-trivial work:
+
+- State assumptions before designing or changing anything.
+- Prefer the smallest useful artifact over speculative completeness.
+- Keep changes surgical and trace every recommendation to the user request or evidence.
+- Convert the task into verifiable success criteria before calling it done.
+- If project policy, user intent, or repository evidence is unclear, ask targeted questions instead of guessing.
+
 ## When to use
 
 Use this skill for `/prd`, `/feature`, `/story-split`, `/task`, and any request that needs a requirements document suitable for developers, QA, and coding agents.
