@@ -21,6 +21,56 @@ export function getOutputSchema(command: ProductDevCommand): string {
 
 function getBaseOutputSchema(command: ProductDevCommand): string {
   switch (command) {
+    case 'code-graph':
+      return `# Repository Code Graph Map
+
+## 1. Graph Summary
+## 2. Evidence Sources
+Repo files, imports, manifests, routes, schemas, tests, git diff, attachments, and optional GitNexus/MCP output used.
+## 3. Module / Package Graph
+Include Mermaid flowchart where useful.
+## 4. Functional Clusters
+Table columns: Cluster, Purpose, Key Files, Entry Points, Dependencies, Risk Level.
+## 5. Entry Points and Execution Flows
+## 6. API / Data / UI Dependency Map
+## 7. Cross-cutting Concerns
+Auth, config, logging, observability, error handling, security, data access.
+## 8. High-risk Coupling and Blind Spots
+## 9. Suggested Agent Navigation Queries
+## 10. Recommended Next Commands`;
+    case 'impact-analysis':
+      return `# Blast Radius Impact Analysis
+
+## 1. Change / Diff Summary
+## 2. Evidence Sources
+## 3. Direct Impact
+Table columns: File/Module, Change, Impact, Confidence, Evidence.
+## 4. Transitive Impact / Call-chain Risk
+## 5. API Contract Impact
+## 6. Data / SQL / Schema Impact
+## 7. Frontend / UX Impact
+## 8. Test Impact and Required New Tests
+## 9. Release / Rollback / Runbook Impact
+## 10. Mermaid Impact Graph
+## 11. Verification Plan
+## 12. Safe Implementation Sequence
+## 13. Next Commands`;
+    case 'code-wiki':
+      return `# Repository Code Wiki
+
+## 1. Executive Architecture Summary
+## 2. How To Navigate This Repository
+## 3. Technology Stack
+## 4. Module Map
+## 5. Key Execution Flows
+## 6. API / UI / Data Contracts
+## 7. Build / Run / Test Commands
+## 8. Diagrams
+Architecture, dependency, and sequence diagrams in Mermaid.
+## 9. Development Guardrails
+## 10. Known Risks and Open Questions
+## 11. How To Keep This Wiki Updated
+## 12. Next Commands`;
     case 'policy-init':
       return `# Policy Pack Initialization
 
@@ -463,6 +513,7 @@ Table columns: Rule, Dimension, Severity, Threshold, SQL Check, Exception Table,
 function getDiagramSchema(command: ProductDevCommand): string {
   const diagramCommands: ProductDevCommand[] = ['architecture-diagram', 'journey-diagram', 'diagram'];
   const diagramAware: ProductDevCommand[] = [
+    'code-graph', 'impact-analysis', 'code-wiki',
     'plan', 'brainstorm', 'feature', 'prd', 'story-split', 'journey', 'design-md', 'ui-design',
     'frontend', 'backend', 'springboot', 'python', 'api', 'data', 'datacontract', 'sttm',
     'dbschema', 'sql', 'nl2sql', 'sql-review', 'sql-translate', 'dq', 'reconcile', 'lineage',

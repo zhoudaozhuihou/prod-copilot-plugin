@@ -1,3 +1,12 @@
+# Changelog
+
+## 1.8.0 - Code Graph Intelligence Edition
+
+- Added `/code-graph`, `/impact-analysis`, and `/code-wiki` commands.
+- Added GitNexus-inspired code graph skill and portable prompts.
+- Added Mermaid-based graph, impact, and code wiki schemas.
+- Added OpenCode and GitHub Copilot prompt shims for new commands.
+
 
 ## 1.7.0 - Diagram Workflow Edition
 

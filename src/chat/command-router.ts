@@ -83,6 +83,9 @@ import { runResourcesScanCommand } from '../commands/resources-scan.command';
 import { runResourcesInitCommand } from '../commands/resources-init.command';
 import { runAgentsInitCommand } from '../commands/agents-init.command';
 import { runAgentsScanCommand } from '../commands/agents-scan.command';
+import { runCodeGraphCommand } from '../commands/code-graph.command';
+import { runImpactAnalysisCommand } from '../commands/impact-analysis.command';
+import { runCodeWikiCommand } from '../commands/code-wiki.command';
 import { renderToolCommandTable, renderWorkflowTable } from '../workflow/workflow';
 
 export async function routeCommand(args: CommandArgs): Promise<void> {
@@ -91,6 +94,9 @@ export async function routeCommand(args: CommandArgs): Promise<void> {
     case 'scan': await runScanCommand(args); return;
     case 'context': await runContextCommand(args); return;
     case 'attachments': await runAttachmentsCommand(args); return;
+    case 'code-graph': await runCodeGraphCommand(args); return;
+    case 'impact-analysis': await runImpactAnalysisCommand(args); return;
+    case 'code-wiki': await runCodeWikiCommand(args); return;
     case 'policy-init': await runPolicyInitCommand(args); return;
     case 'policy-intake': await runPolicyIntakeCommand(args); return;
     case 'policy-scan': await runPolicyScanCommand(args); return;
@@ -168,7 +174,7 @@ export async function routeCommand(args: CommandArgs): Promise<void> {
 export function normalizeCommand(command: string | undefined): ProductDevCommand {
   const value = (command ?? 'help').trim().toLowerCase();
   const supported: ProductDevCommand[] = [
-    'help', 'init', 'policy-init', 'policy-intake', 'policy-scan', 'policy-review', 'skill-init', 'skill-scan', 'skill-run', 'skill-review', 'resources-init', 'resources-scan', 'agents-init', 'agents-scan', 'scan', 'intake', 'context', 'attachments', 'datacontract', 'sttm', 'dq', 'reconcile', 'lineage', 'sql-translate', 'nl2sql', 'sql-review', 'migration', 'scheduler', 'privacy', 'data-test', 'data-review', 'catalog', 'semantic', 'cost', 'runbook', 'plan', 'loop', 'loop-next', 'loop-status', 'loop-stop',
+    'help', 'init', 'code-graph', 'impact-analysis', 'code-wiki', 'policy-init', 'policy-intake', 'policy-scan', 'policy-review', 'skill-init', 'skill-scan', 'skill-run', 'skill-review', 'resources-init', 'resources-scan', 'agents-init', 'agents-scan', 'scan', 'intake', 'context', 'attachments', 'datacontract', 'sttm', 'dq', 'reconcile', 'lineage', 'sql-translate', 'nl2sql', 'sql-review', 'migration', 'scheduler', 'privacy', 'data-test', 'data-review', 'catalog', 'semantic', 'cost', 'runbook', 'plan', 'loop', 'loop-next', 'loop-status', 'loop-stop',
     'prompt', 'summarize', 'compress', 'doc-review', 'rewrite', 'checklist',
     'brainstorm', 'feature', 'prd', 'story-split', 'prd-json', 'ralph-readiness', 'journey', 'design-md', 'ui-design', 'architecture-diagram', 'journey-diagram', 'diagram', 'frontend', 'backend', 'springboot', 'python',
     'data', 'sql', 'dbschema', 'pipeline', 'quality', 'task', 'api', 'review', 'test', 'diff', 'release'
@@ -191,6 +197,15 @@ ${renderWorkflowTable()}
 - /policy-intake - ask which local rules must be supplied.
 - /policy-scan - inventory loaded policy files and missing recommended rules.
 - /policy-review - review conflicts, precedence, gaps, and applicability.
+
+
+## Code Graph Intelligence Commands
+
+- /code-graph - generate a GitNexus-inspired repository knowledge graph map with modules, dependencies, clusters, call flows, and Mermaid diagrams.
+- /impact-analysis - analyze blast radius for a requested change or current git diff, including impacted flows, APIs, data assets, tests, and release risk.
+- /code-wiki - generate a durable code wiki that helps Copilot/OpenCode agents navigate the repo without repeatedly rediscovering architecture.
+
+These commands work with the built-in repo scanner. If your team also runs GitNexus CLI/MCP, attach/export GitNexus context or use MCP-enabled agents for deeper symbol/process graph evidence.
 
 ## Context Commands
 

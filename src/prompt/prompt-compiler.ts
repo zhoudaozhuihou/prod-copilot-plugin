@@ -104,6 +104,9 @@ export function artifactPathFor(command: ProductDevCommand): string {
     case 'diff': return 'prd/prd-diff-report.md';
     case 'release': return 'release/release-readiness-pack.md';
     case 'scan': return 'context/repo-map.md';
+    case 'code-graph': return 'code-intelligence/code-graph-map.md';
+    case 'impact-analysis': return 'code-intelligence/impact-analysis.md';
+    case 'code-wiki': return 'code-intelligence/code-wiki.md';
     case 'init': return 'context/init-report.md';
     case 'loop': return '.product-dev/ralph-loop.local.json';
     case 'loop-next': return '.product-dev/ralph-loop.local.json';
@@ -118,6 +121,9 @@ function titleFor(command: ProductDevCommand): string {
     help: 'Product Dev Copilot Help',
     init: 'Product Dev Initialization Report',
     scan: 'Repository Scan Report',
+    'code-graph': 'Repository Code Graph Map',
+    'impact-analysis': 'Blast Radius Impact Analysis',
+    'code-wiki': 'Repository Code Wiki',
     intake: 'Interactive Project Intake',
     context: 'Project Context Capture',
     'policy-init': 'Policy Pack Initialization',
@@ -240,6 +246,13 @@ VS Code Copilot subagent guardrails:
 - Do not use nested subagents unless explicitly configured by the user. Do not delegate broad, unsafe, or policy-approval decisions.
 - If native subagent execution is unavailable, produce a \`Subagent Delegation Plan\` that the user can run with the generated \`.github/agents/*.agent.md\` custom agents.
 
+GitNexus-inspired code graph guardrails:
+- Treat code graph outputs as repo intelligence artifacts: modules, dependencies, call chains, execution flows, clusters, ownership, and impact paths.
+- Prefer evidence from repository files, imports, package manifests, routes, API clients, schemas, tests, git diff, and attached GitNexus/MCP output.
+- Do not invent call edges, dependencies, ownership, or execution flows; label uncertain graph edges as inferred or unknown.
+- For impact analysis, always separate direct impact, transitive impact, data/API impact, test impact, release risk, and verification plan.
+- If GitNexus CLI/MCP context is available, use it as high-confidence evidence; otherwise explain that the output is based on the built-in repository scanner and may be less precise than a full symbol graph.
+
 Portable prompt / skill resource guardrails:
 - Treat agent-resources/ as tool-neutral prompt/skill source of truth for future OpenCode migration.
 - Treat .product-dev/prompts/ as project-specific overrides for prompts and output schemas.
@@ -320,6 +333,12 @@ function roleFor(command: ProductDevCommand): string {
       return `${common} Act as a principal design systems engineer and frontend UI auditor. Read the current frontend codebase carefully and generate a Stitch-compatible DESIGN.md that captures the real visual system: theme, color roles, typography, components, layout, elevation, responsiveness, and agent prompt guidance. Separate code-backed evidence from assumptions.`;
     case 'ui-design':
       return `${common} Act as a senior product designer and frontend design systems architect. Use existing DESIGN.md if present, or generate a design direction from the user's intent. Produce practical UI design guidance that coding agents can implement consistently.`;
+    case 'code-graph':
+      return `${common} Act as a repository knowledge graph architect. Map modules, dependencies, entry points, call flows, execution paths, clusters, cross-cutting concerns, and code ownership assumptions from repository evidence.`;
+    case 'impact-analysis':
+      return `${common} Act as a blast-radius analysis engineer. Trace requested changes or git diff through code dependencies, execution flows, APIs, data assets, tests, deployment, and release risk.`;
+    case 'code-wiki':
+      return `${common} Act as a codebase documentation architect. Generate a durable code wiki that helps developers and AI agents understand repo architecture, modules, flows, contracts, runbooks, and navigation paths.`;
     case 'frontend':
       return `${common} Act as a principal frontend engineer specialized in React, TypeScript, Material UI, TailwindCSS, state management, accessibility, performance, and frontend testing.`;
     case 'backend':
@@ -436,6 +455,12 @@ function taskFor(command: ProductDevCommand, userPrompt: string): string {
       return `Convert the provided PRD or feature design into Ralph-compatible prd.json. Use branchName ralph/<feature-name>, sequential userStories, priority ordering, passes=false, empty notes, and verifiable acceptanceCriteria. User request: ${request}`;
     case 'ralph-readiness':
       return `Review whether the current PRD, prd.json, progress.txt, AGENTS.md/CLAUDE.md, quality commands, and story decomposition are ready for a Ralph-style autonomous loop. User request: ${request}`;
+    case 'code-graph':
+      return `Generate a GitNexus-inspired repository knowledge graph map from repo context, attached files, and optional GitNexus/MCP output. Include modules, dependencies, clusters, entry points, execution flows, call chains, APIs, data assets, tests, risks, and Mermaid diagrams. User request: ${request}`;
+    case 'impact-analysis':
+      return `Analyze blast radius for the user's requested change or current git diff. Include direct/transitive impact, affected files, APIs, data assets, workflows, tests, release risks, verification commands, and safe implementation sequence. User request: ${request}`;
+    case 'code-wiki':
+      return `Generate a durable repository code wiki for human developers and AI agents. Include architecture overview, module map, key flows, setup/run/test commands, integration contracts, data assets, diagrams, ownership assumptions, and maintenance instructions. User request: ${request}`;
     case 'journey':
       return `Analyze user journey from repository context and identify friction points. User request: ${request}`;
     case 'design-md':
@@ -500,6 +525,9 @@ function constraintsFor(command: ProductDevCommand): string[] {
   }
   if (['skill-init', 'skill-scan', 'skill-run', 'skill-review'].includes(command)) {
     return [...base, 'Skills must be instruction packs, not arbitrary executable scripts.', 'Each skill should define name, description, appliesTo, triggers, scope, constraints, output format, and quality checks.', 'If a skill is ambiguous or unsafe, ask for a safer rewrite.'];
+  }
+  if (['code-graph', 'impact-analysis', 'code-wiki'].includes(command)) {
+    return [...base, 'Use repository evidence first: file paths, imports, package manifests, routes, API clients, schemas, tests, git diff, and attachments.', 'Separate confirmed graph edges from inferred edges.', 'Include Mermaid diagrams for graph views when useful.', 'When GitNexus MCP/CLI output is attached or available, treat it as high-confidence evidence and cite the relevant excerpts in the artifact.', 'Never invent dependencies, ownership, or runtime flows; mark missing evidence explicitly.'];
   }
   if (command === 'architecture-diagram') {
     return [...base, 'Use Mermaid diagram-as-code only unless the user explicitly asks for another notation.', 'Include system context, container/component, deployment, sequence, data-flow, integration, security/trust-boundary, and observability diagrams when applicable.', 'Every diagram must include source evidence and assumptions.', 'Do not invent components; unknown nodes must be labeled TBD or Assumption.'];

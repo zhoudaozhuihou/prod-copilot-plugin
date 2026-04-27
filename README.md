@@ -1219,3 +1219,14 @@ New commands:
 - `@product-dev /diagram` — generates the minimum useful diagram pack for the current SDLC step.
 
 All major product, frontend, backend, API, data, quality, release, and runbook artifacts now include a `Required Diagrams` section when visual documentation is useful. Mermaid is the default format so diagrams are portable to GitHub, VS Code, OpenCode, and documentation sites.
+
+
+## Code Graph Intelligence Commands
+
+Inspired by GitNexus-style repository knowledge graphs, this project now includes:
+
+- `@product-dev /code-graph` — map modules, dependencies, clusters, entry points, execution flows, and risk hotspots.
+- `@product-dev /impact-analysis` — analyze blast radius for current git diff or a requested change.
+- `@product-dev /code-wiki` — generate a durable code wiki that helps Copilot/OpenCode agents understand the repo.
+
+These commands work with the built-in repo scanner. If your team runs GitNexus CLI/MCP, attach/export GitNexus output or use MCP-enabled agents for deeper symbol/process graph evidence.

@@ -1,0 +1,14 @@
+{
+  "evals": [
+    {
+      "name": "detects-invented-edges",
+      "input": "Generate code graph with no repo context",
+      "expected": "Marks unknowns and avoids invented dependencies"
+    },
+    {
+      "name": "blast-radius-output",
+      "input": "Analyze diff impact",
+      "expected": "Includes direct/transitive/API/data/test/release impact and verification plan"
+    }
+  ]
+}

@@ -1,8 +1,8 @@
 {
   "name": "company-product-dev-copilot",
-  "displayName": "Company Product Dev Copilot - Diagram Workflow Edition",
-  "description": "Enterprise VS Code Copilot Chat participant with diagram-aware SDLC workflows, architecture diagrams, user journey diagrams, Ralph-style PRD loops, OpenCode-compatible prompts/skills, DESIGN.md UI design, NL2SQL, SQL review, policy packs, and bank-grade data workflows.",
-  "version": "1.7.0",
+  "displayName": "Company Product Dev Copilot - Code Graph Intelligence Edition",
+  "description": "Enterprise VS Code Copilot Chat participant with GitNexus-inspired code graph intelligence, impact analysis, code wiki generation, diagram-aware SDLC workflows, Ralph PRD loops, OpenCode-compatible prompts/skills, DESIGN.md UI design, NL2SQL, SQL review, policy packs, and bank-grade data workflows.",
+  "version": "1.8.0",
   "publisher": "company-internal",
   "license": "UNLICENSED",
   "engines": {
@@ -34,6 +34,18 @@
           {
             "name": "scan",
             "description": "Scan current repository and generate a repo map."
+          },
+          {
+            "name": "code-graph",
+            "description": "Generate a GitNexus-inspired repository knowledge graph map: modules, dependencies, call flows, clusters, entry points, risks, and Mermaid diagrams."
+          },
+          {
+            "name": "impact-analysis",
+            "description": "Analyze blast radius for a requested change or current git diff, including affected files, flows, APIs, data assets, tests, risks, and verification plan."
+          },
+          {
+            "name": "code-wiki",
+            "description": "Generate an always-refreshable code wiki from repository structure, graph signals, domains, flows, architecture, and ownership assumptions."
           },
           {
             "name": "plan",
@@ -481,6 +493,16 @@
             "aggressive"
           ],
           "description": "Controls how strongly @product-dev recommends VS Code Copilot subagent delegation for complex tasks."
+        },
+        "companyProductDev.codeGraphMode": {
+          "type": "string",
+          "default": "local-repo-scan",
+          "enum": [
+            "local-repo-scan",
+            "gitnexus-assisted",
+            "mcp-preferred"
+          ],
+          "description": "Controls how code graph commands gather code intelligence. local-repo-scan uses built-in repo scanner; gitnexus-assisted expects users to provide GitNexus output or MCP context; mcp-preferred prompts users to use GitNexus MCP when available."
         }
       }
     }

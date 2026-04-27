@@ -74,6 +74,9 @@ export const TOOL_COMMANDS: WorkflowStep[] = [
   { command: 'skill-review', label: 'Skill review', purpose: 'Review custom skills for metadata, clarity, safety, governance readiness, and missing capabilities.', artifact: 'docs/skills/skill-review.md', next: 'skill-scan', category: 'tool' },
   { command: 'resources-init', label: 'Portable resource initialization', purpose: 'Create standalone prompt and skill resources for Copilot today and OpenCode migration later.', artifact: 'agent-resources/README.md', next: 'resources-scan', category: 'tool' },
   { command: 'resources-scan', label: 'Portable resource scan', purpose: 'Inventory prompt/skill resources, Copilot shims, and OpenCode shims for migration readiness.', artifact: 'docs/agent/portable-resource-scan.md', next: 'skill-scan', category: 'tool' },
+  { command: 'code-graph', label: 'Repository code graph', purpose: 'Generate a GitNexus-inspired repo knowledge graph: modules, dependencies, clusters, entry points, execution flows, and risk hotspots.', artifact: 'docs/code-intelligence/code-graph-map.md', next: 'impact-analysis', category: 'tool' },
+  { command: 'impact-analysis', label: 'Blast radius analysis', purpose: 'Analyze current git diff or requested change for direct/transitive code, API, data, test, and release impact.', artifact: 'docs/code-intelligence/impact-analysis.md', next: 'review', category: 'tool' },
+  { command: 'code-wiki', label: 'Code wiki generator', purpose: 'Generate durable repo documentation from graph signals, architecture, flows, contracts, run/test commands, and ownership assumptions.', artifact: 'docs/code-intelligence/code-wiki.md', next: 'code-graph', category: 'tool' },
   { command: 'prompt', label: 'Prompt optimization', purpose: 'Improve rough prompts into role-aware, context-aware, constrained, output-schema-driven prompts.', artifact: 'docs/tools/prompt-optimization.md', next: 'plan', category: 'tool' },
   { command: 'summarize', label: 'Content summary', purpose: 'Summarize selected text, current document, repository context, or long artifacts into decision-ready notes.', artifact: 'docs/tools/content-summary.md', next: 'doc-review', category: 'tool' },
   { command: 'compress', label: 'Context compression', purpose: 'Compress long context into a compact, loss-minimized briefing for Copilot/Claude/Codex/agent loops.', artifact: 'docs/tools/context-compression.md', next: 'loop', category: 'tool' },
@@ -122,11 +125,15 @@ export function renderToolCommandTable(): string {
 
 export function selectLoopSequence(userPrompt: string): ProductDevCommand[] {
   const text = userPrompt.toLowerCase();
+  const wantsCodeGraph = text.includes('code graph') || text.includes('knowledge graph') || text.includes('gitnexus') || text.includes('blast radius') || text.includes('impact analysis') || text.includes('代码图谱') || text.includes('影响分析') || text.includes('依赖图');
   const wantsDesignMd = text.includes('design.md') || text.includes('design-md') || text.includes('ui design') || text.includes('设计系统') || text.includes('视觉规范');
   const wantsSqlTools = text.includes('nl2sql') || text.includes('自然语言') || text.includes('sql translate') || text.includes('sql转换') || text.includes('sql review') || text.includes('sql评审');
   const wantsTools = text.includes('prompt') || text.includes('提示词') || text.includes('总结') || text.includes('summar') || text.includes('compress') || text.includes('review') || text.includes('检查');
   const prefix: ProductDevCommand[] = wantsTools ? ['prompt', 'summarize'] : [];
   const wantsRalph = text.includes('ralph') || text.includes('prd.json') || text.includes('autonomous') || text.includes('循环') || text.includes('一轮') || text.includes('passes:false');
+  if (wantsCodeGraph) {
+    return [...prefix, 'resources-scan', 'skill-scan', 'scan', 'code-graph', 'impact-analysis', 'code-wiki', 'architecture-diagram', 'review'];
+  }
   if (wantsRalph) {
     return [...prefix, 'resources-scan', 'skill-scan', 'policy-scan', 'scan', 'feature', 'prd', 'architecture-diagram', 'story-split', 'prd-json', 'ralph-readiness', 'loop'];
   }
