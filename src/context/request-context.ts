@@ -16,6 +16,7 @@ export interface RequestContext {
   surroundingText?: string;
   attachments: AttachmentContext[];
   references: AttachmentContext[];
+  graphContext?: string;
 }
 
 const TEXT_EXTENSIONS = new Set([
@@ -81,6 +82,7 @@ export function renderRequestContext(context?: RequestContext): string {
   if (context.activeFile) chunks.push(`## Active File\n${context.activeFile}`);
   if (context.selectedText) chunks.push(`## Selected Text\n\`\`\`\n${context.selectedText.slice(0, 12000)}\n\`\`\``);
   if (context.surroundingText && !context.selectedText) chunks.push(`## Surrounding Editor Text\n\`\`\`\n${context.surroundingText.slice(0, 12000)}\n\`\`\``);
+  if (context.graphContext) chunks.push(`## Code Graph / Index Context\n${context.graphContext}`);
   for (const item of [...context.references, ...context.attachments]) {
     if (item.content) chunks.push(`## Attachment: ${item.label}\nPath: ${item.uri ?? 'unknown'}\n\`\`\`\n${item.content.slice(0, 16000)}\n\`\`\``);
     if (item.warning) chunks.push(`## Attachment Warning: ${item.label}\n${item.warning}`);

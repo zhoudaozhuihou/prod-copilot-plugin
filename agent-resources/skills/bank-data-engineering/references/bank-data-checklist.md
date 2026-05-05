@@ -10,4 +10,4 @@ Source field, target field, type conversion, transformation rule, filter, join r
 
 ## Controls
 
-DQ, reconciliation, field lineage, privacy/masking, scheduler, backfill, release gate, runbook, incident escalation.
+DQ, reconciliation, field lineage, privacy/masking (Multi-jurisdiction compliance: GDPR, CCPA, PDPA, APPI, PIPL, etc.), scheduler, backfill, release gate, runbook, incident escalation.

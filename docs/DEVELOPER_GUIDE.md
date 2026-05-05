@@ -27,10 +27,16 @@ Artifact Writer
 | `src/extension.ts` | 插件入口，注册 Chat Participant 和普通 VS Code command |
 | `src/chat/participant.ts` | 处理 Copilot Chat 请求，规范化 slash command |
 | `src/chat/command-router.ts` | 把命令路由到具体 command handler |
-| `src/commands/shared.ts` | AI 文档生成类命令的通用执行管线 |
+| `src/commands/shared.ts` | AI 文档生成类命令的通用执行管线（含 Skill 匹配 + 代码索引注入） |
 | `src/prompt/prompt-compiler.ts` | 把命令、上下文、规则编译成 PromptPackage |
 | `src/prompt/output-schemas.ts` | 每个命令的固定输出结构 |
 | `src/context/repo-scanner.ts` | 扫描 repo 文件结构和关键文件 |
+| `src/context/request-context.ts` | 收集编辑器选中代码、附件、请求上下文 |
+| `src/code-index/indexer.ts` | 代码索引入口（缓存优先的结构快照） |
+| `src/code-index/cache.ts` | 增量缓存管理器（mtime + SHA-256 hash） |
+| `src/code-index/scanner.ts` | 6 种语言正则扫描器（TS/JS/Java/Python/SQL/Go） |
+| `src/code-index/summary.ts` | 紧凑 Markdown context pack 渲染器 |
+| `src/code-index/types.ts` | 索引系统类型定义 |
 | `src/policies/policy-pack-loader.ts` | 加载本地 Policy Pack |
 | `src/scaffold/project-initializer.ts` | `/init` 项目骨架生成器 |
 | `src/loop/ralph-loop.ts` | Ralph-style Loop 状态管理 |
@@ -63,13 +69,16 @@ streamResult(args, result);
 它会自动：
 
 1. 读取 workspace。
-2. 扫描 repo。
-3. 根据需要读取 git diff。
-4. 加载 Policy Pack。
-5. 编译 Prompt。
-6. 调用语言模型。
-7. 写入 artifact。
-8. 输出下一步提示。
+2. 调用 `getCodeContext()` 获取项目代码结构索引（优先从缓存读取）。
+3. 注入 `## Codebase Structural Index` 到 prompt context 最前面。
+4. 根据 frontmatter 匹配本地/便携 Skill 文件。
+5. 后端 API 测试命令时额外扫描 controller/route/DTO 端点。
+6. 根据需要读取 git diff。
+7. 加载 Policy Pack。
+8. 编译 Prompt。
+9. 调用语言模型。
+10. 写入 artifact。
+11. 输出下一步提示。
 
 ### 4.2 Non-AI Command
 
@@ -115,6 +124,17 @@ streamResult(args, result);
 - project initializer
 - artifact writer
 - workflow next-step hints
+
+### 7.1 代码索引测试
+
+代码索引模块 `src/code-index/` 推荐覆盖：
+
+- **scanner**: 每种语言的实体检测（类、函数、路由、DTO 等），空文件、超大文件、排除规则
+- **cache**: buildIndex 增量构建、loadSnapshot/saveSnapshot、clearCache、目录排除
+- **summary**: 空索引、纯一种类型、混合文件、路由/控制器/服务各频道、输出上限
+- **indexer**: cache-first 路径、force-rebuild 路径、getFilesByKind、rescan
+
+> 当前已有 83 个代码索引测试用例覆盖 scanner(54) + cache(17) + summary(17) + indexer(12)。
 
 ## 8. 发布建议
 

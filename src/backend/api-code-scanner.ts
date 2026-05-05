@@ -1,4 +1,3 @@
-\
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -83,26 +82,66 @@ function scanJavaSpring(file: string, content: string, root: string): ApiEndpoin
   if (!/@RestController|@Controller/.test(content)) return [];
   const rel = path.relative(root, file);
   const className = content.match(/class\s+([A-Za-z0-9_]+)/)?.[1];
-  const classPath = normalizePath(extractMappingValue(content.match(/@RequestMapping\s*\(([^)]*)\)/)?.[1] ?? ''));
+  // Extract class-level @RequestMapping only (one that appears before the class declaration)
+  const classReqMatch = content.match(/@RequestMapping\s*\(([^)]*)\)(?=[\s\S]{0,200}?\bclass\s+\w+)/);
+  const classPath = normalizePath(extractMappingValue(classReqMatch?.[1] ?? ''));
 
   const endpoints: ApiEndpointSignal[] = [];
-  const methodRegex = /@(?:(Get|Post|Put|Delete|Patch)Mapping|RequestMapping)\s*\(([^)]*)\)([\s\S]{0,900}?)(?:public|private|protected)?\s+[<>\w\s,?]+\s+(\w+)\s*\(([^)]*)\)/g;
-  let match: RegExpExecArray | null;
-  while ((match = methodRegex.exec(content))) {
-    const mappingType = match[1];
-    const mappingArgs = match[2] ?? '';
-    const between = match[3] ?? '';
-    const methodName = match[4];
-    const params = match[5] ?? '';
+
+  // Match each mapping annotation individually, with optional parentheses for @*Mapping annotations.
+  // @RequestMapping always requires parentheses and is handled in the second alternation branch.
+  const annotationRegex = /@(?:(Get|Post|Put|Delete|Patch)Mapping(?:\s*\(([^)]*)\))?|RequestMapping\s*\(([^)]*)\))/g;
+  let annMatch: RegExpExecArray | null;
+  while ((annMatch = annotationRegex.exec(content))) {
+    const mappingType = annMatch[1]; // 'Get', 'Post', etc., or undefined for @RequestMapping
+    const mappingArgs = annMatch[2] ?? annMatch[3] ?? '';
+    const annStr = annMatch[0];
+    let afterText = content.slice(annMatch.index + annStr.length);
+
+    // Skip class-level @RequestMapping (followed by a class/interface/enum/record declaration)
+    if (!mappingType) {
+      const nextTwoHundred = afterText.slice(0, 200);
+      if (/\b(?:class|interface|enum|record)\s+\w+/.test(nextTwoHundred)) continue;
+    }
+
+    // Skip any additional annotations (like @PreAuthorize, @Secured, @Transactional)
+    // between this mapping annotation and the method signature.
+    const precedingAnnotations: string[] = [];
+    while (/^\s*@/.test(afterText)) {
+      const annMatch = afterText.match(/^(\s*@\w+(?:\([^)]*\))?)/);
+      if (annMatch) {
+        precedingAnnotations.push(annMatch[1].trim());
+        afterText = afterText.slice(annMatch[1].length);
+      } else {
+        break;
+      }
+    }
+
+    // Look ahead for the method signature: optional access modifier, return type, method name, params.
+    const sigRegex = /(?:(?:public|private|protected)\s+)?([^;{]+?)\s*\(([^)]*)\)/;
+    const sigMatch = afterText.match(sigRegex);
+    if (!sigMatch) continue;
+
+    const returnTypeStuff = sigMatch[1];
+    const params = sigMatch[2];
+    const methodNameMatch = returnTypeStuff.match(/(\w+)\s*$/);
+    if (!methodNameMatch) continue;
+
+    const methodName = methodNameMatch[1];
+
+    // Guard rails: skip if the "method name" is actually a type keyword or annotation name
+    if (/^(?:class|record|interface|enum)$/.test(methodName)) continue;
+    if (/Mapping$/.test(methodName)) continue;
+
     const httpMethod = mappingType ? mappingType.toUpperCase() : extractRequestMethod(mappingArgs);
     const methodPath = normalizePath(extractMappingValue(mappingArgs));
-    const fullPath = joinPaths(classPath, methodPath || '/');
+    const fullPath = methodPath ? joinPaths(classPath, methodPath) : joinPaths(classPath, '');
     const securityHints = [
-      ...extractAnnotations(between + mappingArgs, /@(PreAuthorize|Secured|RolesAllowed)\s*\(([^)]*)\)/g),
-      ...extractAnnotations(content.slice(Math.max(0, match.index - 500), match.index), /@(PreAuthorize|Secured|RolesAllowed)\s*\(([^)]*)\)/g)
+      ...extractAnnotations(precedingAnnotations.join(' ') + mappingArgs, /@(PreAuthorize|Secured|RolesAllowed)\s*\(([^)]*)\)/g),
+      ...extractAnnotations(content.slice(Math.max(0, annMatch.index - 500), annMatch.index), /@(PreAuthorize|Secured|RolesAllowed)\s*\(([^)]*)\)/g)
     ];
     const validationHints = extractAnnotations(params, /@(Valid|Validated|NotNull|NotBlank|Size|Pattern|Min|Max|Email)\b(?:\(([^)]*)\))?/g);
-    const requestBody = params.match(/@RequestBody\s+(?:@Valid\s+)?([A-Za-z0-9_<>, ?]+)/)?.[1]?.trim();
+    const requestBody = params.match(/@RequestBody\s+(?:@Valid\s+)?([A-Za-z0-9_<>]+(?:\.[A-Za-z0-9_<>]+)*)/)?.[1]?.trim();
     const parameters = params.split(',').map(p => p.trim()).filter(Boolean).map(p => p.replace(/\s+/g, ' '));
     const serviceHints = extractServiceHints(content, methodName);
 
@@ -125,15 +164,44 @@ function scanJavaSpring(file: string, content: string, root: string): ApiEndpoin
 
 function scanJavaDtos(file: string, content: string, root: string): string[] {
   if (!/\b(class|record)\b/.test(content)) return [];
-  if (!/@(NotNull|NotBlank|Size|Pattern|Email|Min|Max|Valid)|private\s+[\w<>, ?]+\s+\w+;/.test(content)) return [];
+  if (!/@(NotNull|NotBlank|Size|Pattern|Email|Min|Max|Valid)|private\s+[\w<>, ?]+\s+\w+;|\brecord\b/.test(content)) return [];
   const rel = path.relative(root, file);
   const name = content.match(/\b(?:class|record)\s+([A-Za-z0-9_]+)/)?.[1] ?? path.basename(file);
-  const fields = [...content.matchAll(/((?:@\w+(?:\([^)]*\))?\s*)*)private\s+([\w<>, ?]+)\s+(\w+);/g)]
-    .slice(0, 30)
-    .map(m => {
-      const anns = (m[1] ?? '').trim().replace(/\s+/g, ' ');
-      return `- ${m[3]}: ${m[2]}${anns ? ` (${anns})` : ''}`;
-    });
+  const fields: string[] = [];
+
+  // 1. Regular class fields: @Annotation private Type name;
+  const classFieldRegex = /((?:@\w+(?:\([^)]*\))?\s*)*)private\s+([\w<>, ?]+)\s+(\w+);/g;
+  let classMatch: RegExpExecArray | null;
+  while ((classMatch = classFieldRegex.exec(content))) {
+    const anns = (classMatch[1] ?? '').trim().replace(/\s+/g, ' ');
+    fields.push(`- ${classMatch[3]}: ${classMatch[2]}${anns ? ` (${anns})` : ''}`);
+    if (fields.length >= 30) break;
+  }
+
+  // 2. Record fields: inside record body between balanced parentheses.
+  //    Record fields use comma- or paren-terminated inline declarations like "@NotNull String name,"
+  //    without the `private` keyword.
+  const recordNameRegex = /record\s+(\w+(?:<[^>]+>)?)\s*\(/g;
+  let recordMatch: RegExpExecArray | null;
+  while ((recordMatch = recordNameRegex.exec(content))) {
+    // Find balanced closing paren to extract the record component body
+    let depth = 1;
+    let i = recordMatch.index + recordMatch[0].length;
+    while (i < content.length && depth > 0) {
+      if (content[i] === '(') depth++;
+      else if (content[i] === ')') depth--;
+      i++;
+    }
+    const recordBody = content.slice(recordMatch.index + recordMatch[0].length, i - 1);
+    const recordFieldRegex = /((?:@\w+(?:\([^)]*\))?\s*)*)([\w?]+(?:<[^>]+>)?)\s+(\w+)\s*(?:,|$)/g;
+    let rf: RegExpExecArray | null;
+    while ((rf = recordFieldRegex.exec(recordBody))) {
+      const anns = (rf[1] ?? '').trim().replace(/\s+/g, ' ');
+      fields.push(`- ${rf[3]}: ${rf[2]}${anns ? ` (${anns})` : ''}`);
+      if (fields.length >= 30) break;
+    }
+  }
+
   if (!fields.length) return [];
   return [`### DTO ${name} (${rel})\n${fields.join('\n')}`];
 }
@@ -151,7 +219,7 @@ function scanPythonApi(file: string, content: string, root: string): ApiEndpoint
       httpMethod: match[2].toUpperCase(),
       path: extractPythonPath(match[3]),
       parameters: (match[5] ?? '').split(',').map(p => p.trim()).filter(Boolean),
-      securityHints: /Depends\(.+Security|OAuth2|HTTPBearer|current_user/.test(match[5] ?? '') ? ['FastAPI dependency/security hint detected'] : [],
+      securityHints: /Depends\(.*Security|OAuth2|HTTPBearer|current_user/i.test(match[5] ?? '') ? ['FastAPI dependency/security hint detected'] : [],
       validationHints: /BaseModel|Field\(|Query\(|Path\(|Body\(/.test(content) ? ['Pydantic/FastAPI validation hints detected'] : [],
       serviceHints: extractPythonServiceHints(content, match[4])
     });

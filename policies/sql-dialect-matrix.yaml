@@ -1,21 +1,26 @@
 sqlDialectMatrix:
-  postgresql:
-    pagination: LIMIT_OFFSET
-    upsert: ON_CONFLICT
-    partition: RANGE_LIST_HASH
-    notes: Prefer partial indexes and explain analyze for performance validation.
-  maxcompute:
-    pagination: LIMIT
-    upsert: MERGE_OR_INSERT_OVERWRITE
-    partition: PARTITION_COLUMNS
-    notes: Be explicit about partition pruning and avoid full table scans on large tables.
-  bigquery:
-    pagination: LIMIT_OFFSET
-    upsert: MERGE
-    partition: DATE_TIMESTAMP_INTEGER_RANGE
-    notes: Prefer partition filters and clustering; watch slot/cost impact.
+  teradata:
+    pagination: TOP_OR_QUALIFY
+    upsert: MERGE_OR_UPDATE_INSERT
+    partition: PRIMARY_INDEX_PARTITION_BY
+    notes: Heavily relies on Primary Indexes (PI). Needs translation to BQ Clustering or MaxCompute Partitions. Watch out for Teradata specific date math (e.g. date - date) and QUALIFY clauses.
   oracle:
     pagination: FETCH_FIRST_OR_ROWNUM
     upsert: MERGE
     partition: RANGE_LIST_HASH_COMPOSITE
-    notes: Validate execution plan, bind variables, indexes, and statistics.
+    notes: Watch out for DUAL table, ROWNUM, CONNECT BY (Hierarchical queries), NVL (translate to COALESCE/IFNULL), and TRUNC/SYSDATE.
+  postgresql:
+    pagination: LIMIT_OFFSET
+    upsert: ON_CONFLICT
+    partition: RANGE_LIST_HASH
+    notes: Watch out for DISTINCT ON, specific JSONB operators, and sequence generators.
+  maxcompute:
+    pagination: LIMIT
+    upsert: MERGE_OR_INSERT_OVERWRITE
+    partition: PARTITION_COLUMNS
+    notes: Target dialect. No primary keys/indexes. Enforce pt= string partitions. Translate all ROWNUM/LIMIT_OFFSET to ROW_NUMBER() OVER(). Replace NVL with COALESCE. DUAL is not needed.
+  bigquery:
+    pagination: LIMIT_OFFSET
+    upsert: MERGE
+    partition: DATE_TIMESTAMP_INTEGER_RANGE
+    notes: Target dialect. Prefer partition filters and clustering. Translate QUALIFY if target supports, otherwise wrap in CTE. Translate Teradata/Oracle dates to DATE_ADD/DATE_SUB. Use STRUCT/ARRAY for hierarchical data.

@@ -14,7 +14,7 @@ export async function runAttachmentsCommand(args: CommandArgs): Promise<CommandR
   args.stream.markdown(`# Attachment / Request Context Scan\n\n${markdown}\n\n---\n\nNext recommended command: run the target command again, for example \`@product-dev /nl2sql ...\`, after confirming the attachments are visible.`);
   return {
     title: 'Attachment / Request Context Scan',
-    markdown,
-    nextStepHint: 'Next recommended command: run your target workflow command with the same attachments.'
+    content: markdown,
+    nextCommand: 'Next recommended command: run your target workflow command with the same attachments.'
   };
 }

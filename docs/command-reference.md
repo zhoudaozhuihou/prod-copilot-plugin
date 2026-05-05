@@ -150,6 +150,26 @@ Optimize rough prompts into enterprise-grade prompts with role, context, constra
 @product-dev /prompt <补充你的任务背景或上下文>
 ```
 
+### `@product-dev /optimize-skill`
+
+Optimize a raw skill idea into a rigorous, highly-structured skill prompt before using the `create skill` command.
+
+**使用示例**
+
+```text
+@product-dev /optimize-skill <补充你的技能想法>
+```
+
+### `@product-dev /optimize-agent`
+
+Optimize a raw agent concept into a rigorous, highly-structured agent prompt before using the `create agent` command.
+
+**使用示例**
+
+```text
+@product-dev /optimize-agent <补充你的智能体想法>
+```
+
 ### `@product-dev /summarize`
 
 Summarize selected text, documents, or repository context into decision-ready notes.

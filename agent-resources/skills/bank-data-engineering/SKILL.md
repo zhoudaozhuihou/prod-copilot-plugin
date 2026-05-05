@@ -32,6 +32,10 @@ The task is about enterprise or banking data development, especially where trace
 ## Deep reference
 
 Read `references/bank-data-checklist.md` for the full control checklist.
+For specific banking scenarios, refer to the following specialized skills:
+- `derivatives-pricing`: For complex derivatives and Greeks calculations.
+- `regulatory-reporting`: For BCBS 239 compliant regulatory reports and GL reconciliation.
+- `realtime-risk`: For intraday, streaming, and real-time risk calculations.
 
 ## Output pattern
 

@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "Node16",
     "target": "ES2022",
     "lib": ["ES2022"],
     "outDir": "dist",
@@ -10,7 +10,8 @@
     "noImplicitAny": false,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "moduleResolution": "node"
+    "moduleResolution": "Node16",
+    "types": ["node"]
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules", ".vscode-test"]

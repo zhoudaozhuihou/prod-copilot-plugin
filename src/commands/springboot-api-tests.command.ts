@@ -3,5 +3,6 @@ import { runAiArtifactCommand, runLocalInfoCommand, streamResult } from './share
 
 export async function runSpringbootApiTestsCommand(args: CommandArgs): Promise<CommandResult> {
   const result = await runAiArtifactCommand(args, 'springboot-api-tests');
-  streamResult(args, result);\n  return result;
+  streamResult(args, result);
+  return result;
 }

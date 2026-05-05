@@ -1,3 +1,21 @@
+# Changelog
+
+## 2.1.0 - Code Index & Skill Optimization Edition
+
+- Added `src/code-index/` local code indexing module (5 files: types, scanner, cache, summary, indexer).
+- Integrated `getCodeContext()` into shared.ts `buildPromptPackage()` — injects `## Codebase Structural Index` into every command prompt.
+- Added regex-based structural scanners for TypeScript, JavaScript, Java, Python, SQL, Go.
+- Added incremental JSON cache with mtime + SHA-256 content hash change detection.
+- Added compact Markdown summary renderer (~2000-4000 chars for 200-file project, capped at 8000).
+- Cache stored in `.product-dev/code-index-cache/snapshot.json`.
+- Rewrote `loadRelevantSkills()` to use YAML frontmatter-based matching (name, appliesTo, triggers, description).
+- Deleted 33 orphaned prompt files from legacy `prompts/` directory.
+- Added 6 missing output schemas: catalog, semantic, migration, cost, privacy, runbook.
+- Fixed eslint warnings in `command-registry.ts`.
+- Added 83 unit tests for code-index module (scanner: 54, cache: 17, summary: 17, indexer: 12).
+- Total test count: 204 passing, 0 lint errors.
+- Updated all documentation (architecture.md, SOURCE_CODE_COMMENTARY.md, DEVELOPER_GUIDE.md, README.md, CHANGELOG.md).
+
 ## 2.0.0 - Backend API Test Generation Edition
 
 - Added `/backend-api-scan`.
@@ -7,8 +25,6 @@
 - Added static backend scanner for Spring Boot, FastAPI, and Flask route evidence.
 - Added backend API test generation skill, prompts, output schemas, Copilot prompts, and OpenCode commands.
 - Added `docs/BACKEND_API_TEST_GENERATION_WORKFLOW.md`.
-
-# Changelog
 
 ## 1.8.0 - Code Graph Intelligence Edition
 
@@ -25,8 +41,6 @@
 - Added Anthropic-style `diagramming` skill with Mermaid standards and diagram catalog.
 - Added Copilot/OpenCode prompt shims and `diagram-architect` subagent.
 - Added documentation in `docs/DIAGRAM_WORKFLOW_V1_7.md`.
-
-# Changelog
 
 ## v1.5.0 - Karpathy-Guided Skills Edition
 
@@ -65,8 +79,6 @@
 - Improved skill loader to treat `name` and `description` as primary discovery metadata.
 - Improved `/skill-scan` and `/skill-review` to report triggering, resource, eval, and safety quality.
 - Updated `/skill-init` and `/resources-init` to generate higher-quality, OpenCode-compatible skills.
-
-# Changelog
 
 ## 0.9.0 - Prompt Optimizer & Skills Edition
 

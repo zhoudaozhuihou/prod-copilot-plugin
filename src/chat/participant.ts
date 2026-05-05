@@ -1,17 +1,51 @@
 import * as vscode from 'vscode';
 import { routeCommand, normalizeCommand } from './command-router';
 import { logError } from '../utils/logger';
-import { getNextCommand } from '../workflow/workflow';
+import { getSmartRecommendations } from '../workflow/workflow';
 import { collectRequestContext } from '../context/request-context';
 import { getWorkspaceRoot } from '../context/workspace';
+import { fuzzyMatchCommand, getExposedCommand } from './command-registry';
+import { LocalCodeIndexer } from '../code-intelligence/local-indexer';
 
 export function createProductDevParticipant(extensionContext: vscode.ExtensionContext): vscode.ChatParticipant {
   const handler: vscode.ChatRequestHandler = async (request, chatContext, stream, token) => {
-    const command = normalizeCommand(request.command);
+    let exposedCommand = (request.command || 'help').trim().replace(/^\//, '') || 'help';
+    
+    // Fuzzy match if user didn't specify a command but provided intent in prompt
+    if (request.command === undefined && request.prompt) {
+      const fuzzyMatch = fuzzyMatchCommand(request.prompt);
+      if (fuzzyMatch) {
+        exposedCommand = fuzzyMatch;
+        stream.markdown(`*✨ 自动识别意图: 正在执行 \`/${exposedCommand}\` 命令*\n\n`);
+      }
+    }
+
+    const command = normalizeCommand(exposedCommand);
     const workspaceRoot = getWorkspaceRoot();
 
     try {
       const requestContext = await collectRequestContext(request, workspaceRoot);
+
+      // Initialize and apply local code indexing for non-help commands
+      if (workspaceRoot && command !== 'help') {
+        const indexer = new LocalCodeIndexer(workspaceRoot);
+        await indexer.load();
+        
+        // Fast incremental update
+        stream.progress('Updating local code index...');
+        await indexer.buildOrUpdate({
+          report: (p) => stream.progress(p.message || 'Indexing...')
+        });
+
+        // Determine blast radius context if a specific file is targeted (e.g. via active editor)
+        if (requestContext.activeFile) {
+          const impactFiles = indexer.getImpactRadius(requestContext.activeFile);
+          // If the command is explicitly 'compress', use aggressive compression
+          const useAggressive = command === 'compress';
+          requestContext.graphContext = indexer.getReviewContext(impactFiles, useAggressive);
+        }
+      }
+
       await routeCommand({
         command,
         userPrompt: request.prompt,
@@ -21,7 +55,7 @@ export function createProductDevParticipant(extensionContext: vscode.ExtensionCo
         token,
         request,
         requestContext
-      });
+      }, exposedCommand);
       return { metadata: { command } };
     } catch (error) {
       logError(`Command /${command} failed.`, error);
@@ -36,23 +70,13 @@ export function createProductDevParticipant(extensionContext: vscode.ExtensionCo
   participant.followupProvider = {
     provideFollowups(result) {
       const command = (result?.metadata as { command?: string } | undefined)?.command ?? 'plan';
-      const next = getNextCommand(command);
-      const followups: vscode.ChatFollowup[] = [];
-      if (next) {
-        followups.push({
-          prompt: `/${next} 继续执行上一步建议的下一阶段`,
-          label: `Next: /${next}`,
-          command: next
-        });
-      }
-      if (['backend', 'springboot', 'python', 'api', 'backend-api-scan'].includes(command)) {
-        followups.push({
-          prompt: '/api-test-gen 基于后端代码生成 API 请求实例和自动化测试用例',
-          label: 'Generate API tests',
-          command: 'api-test-gen'
-        });
-      }
-      return followups;
+      const recommendations = getSmartRecommendations(command, extensionContext);
+      
+      return recommendations.map(rec => ({
+        prompt: `/${rec} 执行此命令以进行下一步`,
+        label: `Next: /${rec}`,
+        command: rec
+      }));
     }
   };
   return participant;

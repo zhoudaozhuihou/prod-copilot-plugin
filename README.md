@@ -2,7 +2,7 @@
 
 > 企业级 VS Code Copilot Chat `@product-dev` 插件：面向产品设计、前端开发、后端开发、银行级数据开发、质量门禁、Policy Pack 本地规则覆盖、Ralph-style Looping、提示词优化与文档 Review 的全流程研发助手。
 
-当前版本：**v1.6.0 VS Code Copilot Subagent Orchestration Edition**
+当前版本：**v2.1.0 Code Index & Skill Optimization Edition**
 
 ---
 
@@ -16,6 +16,7 @@
 4. 银行/金融场景对 DQ、对账、血缘、隐私、审计、发布门禁有强要求。
 5. 每个公司、部门、国家、项目、环境都有自己的规则，不能只依赖通用 prompt。
 6. 长任务需要循环推进，但又不能完全无人值守。
+7. **多云与多区域合规挑战**：面对 GCP、阿里云等云原生架构，难以将传统数仓（Oracle、Teradata）平滑迁移，并兼顾各国严格的数据隐私法（GDPR、PIPL 等）。
 
 本插件提供一个统一入口：
 
@@ -32,15 +33,16 @@
 | 能力域 | 代表命令 | 主要产物 |
 |---|---|---|
 | 项目初始化 | `/init`, `/intake`, `/context` | 初始目录、问题清单、项目画像 |
+| **代码索引** | 所有命令自动使用 | `.product-dev/code-index-cache/snapshot.json`（增量缓存）、`## Codebase Structural Index`（注入 prompt） |
 | 本地规则覆盖 | `/policy-init`, `/policy-scan`, `/policy-review` | Policy Pack、规则清单、冲突分析 |
 | 产品设计 | `/brainstorm`, `/feature`, `/prd`, `/journey` | 头脑风暴、功能设计、PRD、用户旅程 |
 | Ralph PRD | `/story-split`, `/prd-json`, `/ralph-readiness` | 小步故事拆分、Ralph prd.json、循环执行准备检查 |
 | 前端开发 | `/frontend` | 页面/组件/状态/API Hook/测试设计 |
-| 后端开发 | `/backend`, `/springboot`, `/python` | 服务/API/领域模型/测试/配置设计 |
-| 数据开发 | `/data`, `/sql`, `/dbschema`, `/pipeline` | 数据模型、SQL、Schema、Pipeline |
-| 银行数据工程 | `/datacontract`, `/sttm`, `/dq`, `/reconcile`, `/lineage`, `/privacy`, `/runbook` | 数据契约、STTM、DQ、对账、血缘、隐私、运维 |
-| 工具命令 | `/prompt`, `/summarize`, `/compress`, `/doc-review`, `/rewrite`, `/checklist` | Prompt 优化、总结、压缩、Review、改写、清单 |
-| 自定义 Skill | `/skill-init`, `/skill-scan`, `/skill-run`, `/skill-review` | 本地 Skill 注册、扫描、运行、治理 Review |
+| 后端开发 | `/dev-backend`, `/dev-springboot`, `/dev-python` | 服务/API/领域模型/测试/配置设计 |
+| 数据开发 | `/dev-data`, `/dev-sql`, `/dev-dbschema`, `/dev-pipeline` | 数据模型、SQL、Schema、Pipeline |
+| 银行数据工程 | `/datacontract`, `/sttm`, `/dq`, `/reconcile`, `/lineage`, `/privacy`, `/runbook` | 涵盖跨国合规(GDPR/PIPL等)与云原生(GCP/阿里云)的数据治理体系 |
+| 测试与审查 | `/test-plan`, `/test-api-gen`, `/debug-review`, `/debug-sql` | 自动化门禁、Review、测试、方言转换影响分析 |
+| 自定义 Skill | `/skill-init`, `/skill-scan`, `/skill-run`, `/skill-review` | 本地 Skill 注册、扫描、运行、治理 Review（基于 frontmatter 精确匹配） |
 | VS Code Subagents | `/agents-init`, `/agents-scan` | `.github/agents/*.agent.md` 自定义 Agent、复杂任务 subagent 编排 |
 | 循环执行 | `/loop`, `/loop-next`, `/loop-status`, `/loop-stop` | 外部状态文件、TODO、迭代记录 |
 | 交付治理 | `/quality`, `/review`, `/test`, `/diff`, `/release` | 门禁、Review、测试、影响分析、发布包 |
@@ -179,7 +181,7 @@ Extensions → Install from VSIX...
 @product-dev /review
 ```
 
-### 4.4 银行数据开发项目
+### 4.4 云原生银行数据开发项目 (GCP / 阿里云)
 
 ```text
 @product-dev /init data
@@ -187,21 +189,21 @@ Extensions → Install from VSIX...
 @product-dev /policy-intake
 @product-dev /policy-scan
 @product-dev /intake
-@product-dev /context <补充源系统、目标表、SLA、DQ、对账、血缘、隐私、调度要求>
+@product-dev /context <补充云平台如GCP/阿里云、源系统、SLA、跨国合规(如GDPR/PIPL/跨境传输)、调度要求>
 @product-dev /plan
-@product-dev /data
+@product-dev /dev-data
 @product-dev /datacontract
 @product-dev /sttm
-@product-dev /dbschema
-@product-dev /sql
+@product-dev /dev-dbschema
+@product-dev /dev-sql
 @product-dev /dq
 @product-dev /reconcile
 @product-dev /lineage
-@product-dev /pipeline
+@product-dev /dev-pipeline
 @product-dev /scheduler
-@product-dev /data-test
+@product-dev /test-data
 @product-dev /privacy
-@product-dev /data-review
+@product-dev /debug-data
 @product-dev /release
 @product-dev /runbook
 ```
@@ -496,7 +498,25 @@ Ralph Loop 的目标是让长任务逐轮推进，但保持外部状态、可暂
 
 ---
 
-## 8. 命令完整清单
+## 8. 核心特性：本地代码索引与 Token 极致压缩引擎 (Local Code Indexer & Compression)
+
+从 v2.1.0 开始，系统内置了增量式的本地代码知识图谱与索引引擎，有效解决了大模型处理大型代码库时“盲目读取导致 Token 爆炸”的问题。
+
+### 8.1 增量哈希扫描 (Incremental Hashing)
+引擎使用 `SHA-256 Hash` 和文件修改时间（`mtime`）进行双重比对。每次您向大模型发起询问时，系统只需毫秒级的时间即可完成成千上万个文件的变更检测，仅对真正修改过的文件重新提取符号结构。
+
+### 8.2 爆炸半径计算 (Blast Radius Impact)
+当您在特定文件（如 `auth.ts`）唤起命令时，系统会自动进行反向依赖追踪，找出项目中所有导入或调用了该文件的“受影响文件”，并**仅将这些受影响文件**的代码骨架发送给 LLM，实现极度精准的上下文投喂。
+
+### 8.3 激进压缩模式 (Aggressive Compression)
+结合类似 `rtk` (Rust Token Kit) 的压缩哲学，系统引入了多重过滤策略：
+- **Truncation (主体剥离)**: 默认过滤掉函数和类的具体实现逻辑，仅保留结构化的签名（Signatures）。
+- **Grouping (聚合归类)**: 智能折叠并合并多个 Import 声明。
+- **显式激活**: 当您使用 `@product-dev /compress` 命令时，系统将激活最高级别的压缩模式，能将发送给大模型的代码上下文压缩 60% - 90% 以上。
+
+---
+
+## 9. 命令完整清单
 
 | 命令 | 说明 |
 |---|---|
@@ -543,7 +563,7 @@ Ralph Loop 的目标是让长任务逐轮推进，但保持外部状态、可暂
 | `/dq` | Generate executable data quality rules and SQL checks. |
 | `/reconcile` | Generate reconciliation design, SQL checks, and exception handling. |
 | `/lineage` | Generate table/field lineage analysis and Mermaid lineage graph. |
-| `/sql-translate` | Translate SQL across Oracle, PostgreSQL, BigQuery, MaxCompute, Hive, etc. |
+| `/sql-translate` | 传统数仓向云原生迁移方言转换 (Translate Oracle, Teradata, PostgreSQL to BigQuery, MaxCompute, etc. with Structural Modernization). |
 | `/migration` | Design data/schema migration, dual-run, validation, and rollback. |
 | `/scheduler` | Design DAG scheduling, dependency, retry, SLA, and alerting strategy. |
 | `/privacy` | Generate data privacy, masking, retention, and access-control assessment. |
@@ -736,6 +756,7 @@ tests/                          # 测试
 
 ## 15. 安全与合规注意事项
 
+- **本地预检与 CI/CD 门禁**: 系统默认集成了针对代码复杂度、安全漏洞和测试覆盖率的严格规范（如 `coding-standard.yaml`）。配合 GitHub Actions (`dev-standards-gate.yml`)，任何不合规的代码或格式不规范的 Commit Message 都将在 PR 阶段被拦截。可以使用 `@product-dev /debug-review` 命令让 AI 协助修复这些拦截项。
 - 不要把真实客户数据、账号、密钥、token、证书提交到 repo。
 - Policy Pack 可以保存规则，但不应保存敏感样本数据。
 - 对生产数据开发，AI 输出必须经过人工 Review。

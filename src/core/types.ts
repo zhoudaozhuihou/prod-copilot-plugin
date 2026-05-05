@@ -3,6 +3,37 @@ import { RequestContext } from '../context/request-context';
 
 export type ProductDevCommand = string;
 
+/**
+ * Supported SQL dialects for lineage parsing, SQL translation, and NL2SQL.
+ * Enum values match common configuration key conventions.
+ */
+export enum SqlDialect {
+  PostgreSQL = 'postgresql',
+  Oracle = 'oracle',
+  BigQuery = 'bigquery',
+  MaxCompute = 'maxcompute',
+  MySQL = 'mysql',
+  SQLServer = 'sqlserver',
+  Snowflake = 'snowflake',
+  Databricks = 'databricks',
+  Hive = 'hive',
+}
+
+/**
+ * Human-readable labels for each SQL dialect.
+ */
+export const SQL_DIALECT_LABELS: Record<SqlDialect, string> = {
+  [SqlDialect.PostgreSQL]: 'PostgreSQL',
+  [SqlDialect.Oracle]: 'Oracle',
+  [SqlDialect.BigQuery]: 'BigQuery',
+  [SqlDialect.MaxCompute]: 'MaxCompute / ODPS',
+  [SqlDialect.MySQL]: 'MySQL',
+  [SqlDialect.SQLServer]: 'SQL Server',
+  [SqlDialect.Snowflake]: 'Snowflake',
+  [SqlDialect.Databricks]: 'Databricks / Spark SQL',
+  [SqlDialect.Hive]: 'Hive',
+};
+
 export interface CommandArgs {
   command: ProductDevCommand;
   userPrompt: string;

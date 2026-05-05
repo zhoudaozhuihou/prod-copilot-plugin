@@ -1,4 +1,23 @@
 dataEngineering:
+  compliance:
+    requireBCBS239: true # Basel Committee on Banking Supervision (Risk Data Aggregation)
+    globalPrivacyRegs:
+      requireGDPR: true # General Data Protection Regulation (EU)
+      requireCCPA: true # California Consumer Privacy Act (USA)
+      requirePDPA: true # Personal Data Protection Act (Singapore)
+      requireAPPI: true # Act on the Protection of Personal Information (Japan)
+      requirePDPO: true # Personal Data (Privacy) Ordinance (Hong Kong)
+      requirePrivacyAct: true # Privacy Act 1988 (Australia)
+    chinaLocalRegs:
+      requirePIPL: true # 中国《个人信息保护法》
+      requireDSL: true # 中国《数据安全法》
+      requireCSL: true # 中国《网络安全法》
+      requireCrossBorderTransferReview: true # 数据出境安全评估
+    auditTrailRetentionDays: 2555 # 7 years
+    cloudSecurity:
+      requireCMEK: true # 强制要求 Cloud KMS 加密
+      requireIAMLeastPrivilege: true # 强制 IAM 最小权限原则
+      requireColumnLevelSecurity: true # 强制 Data Catalog Policy Tags 列级访问控制
   requiredArtifacts:
     - data_contract
     - source_to_target_mapping
@@ -27,3 +46,5 @@ dataEngineering:
     requireRetryPolicy: true
     requireSlaAndAlerting: true
     requireExceptionTable: true
+    requireRealTimeMonitoring: true
+    requireResourceUtilizationCheck: true

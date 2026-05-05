@@ -116,6 +116,14 @@
             "description": "Review prompts, documents, PRDs, designs, SQL, or release notes with severity and actionable fixes."
           },
           {
+            "name": "optimize-skill",
+            "description": "Optimize a raw skill idea into a rigorous, highly-structured skill prompt before using the create skill command."
+          },
+          {
+            "name": "optimize-agent",
+            "description": "Optimize a raw agent concept into a rigorous, highly-structured agent prompt before using the create agent command."
+          },
+          {
             "name": "rewrite",
             "description": "Rewrite or upgrade content for executive, product, technical, banking-grade, or implementation-ready use."
           },
@@ -554,19 +562,36 @@
   "scripts": {
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "lint": "eslint src --ext ts",
-    "test": "vitest run",
+    "lint": "eslint src/",
+    "test": "vitest run --config vitest.config.mts",
+    "test:coverage": "vitest run --config vitest.config.mts --coverage",
     "package": "vsce package --no-dependencies",
-    "vscode:prepublish": "npm run compile"
+    "vscode:prepublish": "npm run compile",
+    "prepare": "husky || true",
+    "lint-staged": "lint-staged"
+  },
+  "lint-staged": {
+    "src/**/*.ts": [
+      "eslint --fix --ext ts",
+      "vitest run --config vitest.config.mts --related --passWithNoTests"
+    ],
+    "CHANGELOG.md": [
+      "commitlint --edit"
+    ]
   },
   "devDependencies": {
-    "@types/node": "^22.15.0",
+    "@commitlint/cli": "^19.8.0",
+    "@commitlint/config-conventional": "^19.8.0",
+    "@types/node": "^25.6.0",
     "@types/vscode": "^1.100.0",
     "@typescript-eslint/eslint-plugin": "^8.31.0",
     "@typescript-eslint/parser": "^8.31.0",
+    "@vitest/coverage-v8": "^4.1.5",
     "@vscode/vsce": "^3.3.0",
     "eslint": "^9.25.0",
-    "typescript": "^5.8.3",
-    "vitest": "^3.1.2"
+    "husky": "^9.1.0",
+    "lint-staged": "^15.5.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.5"
   }
 }

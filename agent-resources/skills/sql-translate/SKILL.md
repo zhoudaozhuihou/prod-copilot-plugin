@@ -1,11 +1,11 @@
 ---
 name: sql-translate
-description: Translate SQL between PostgreSQL, Oracle, BigQuery, MaxCompute/ODPS, MySQL, SQL Server, Snowflake, Databricks/Spark SQL, and Hive while preserving business semantics. Use this skill when the user asks for SQL dialect conversion, migration, modernization, engine replacement, syntax compatibility, date/function mapping, MERGE/UPSERT translation, partition syntax changes, or cloud data warehouse migration.
-appliesTo: sql-translate,sql,migration,data-review
-triggers: sql translate,方言转换,oracle,bigquery,maxcompute,postgresql,hive,snowflake,databricks,migration
+description: Translate SQL from legacy databases (Oracle, Teradata, PostgreSQL, SQL Server) to cloud-native Data Warehouses (BigQuery, MaxCompute/ODPS). Preserves business semantics while applying target-specific performance optimizations (Partitions, Clustering, Arrays/Structs).
+appliesTo: sql-translate,sql,migration,data-review,dbschema
+triggers: sql translate,方言转换,oracle,teradata,bigquery,maxcompute,postgresql,hive,migration,云原生迁移
 ---
 
-# SQL Translate
+# SQL Translate & Modernization
 
 ## Karpathy Execution Guardrails
 
@@ -19,12 +19,15 @@ Apply the shared `karpathy-guidelines` skill for non-trivial work:
 
 ## Workflow
 
-1. Identify source and target dialect. If either is missing, ask before producing final SQL.
-2. Preserve business semantics before syntax style.
-3. Map data types, date/time functions, string functions, null semantics, CTEs, windows, MERGE/UPSERT, temp tables, sequences, partition filters, quoting, arrays/structs, and UDFs.
-4. Mark non-equivalent functions and required manual decisions.
-5. Provide translated SQL, compatibility notes, validation SQL, and performance/cost adjustments.
+1. **Dialect Identification**: Identify source (e.g. Teradata, Oracle) and target dialect (e.g. BigQuery, MaxCompute). If either is missing, ask before producing final SQL.
+2. **Semantic Preservation**: Understand the business intent (e.g. cumulative sums, deduplication) before syntax conversion.
+3. **Cloud-Native Modernization Mapping**:
+   - **Teradata to BigQuery/MaxCompute**: Translate `QUALIFY`, `SAMPLE`, and implicit Date Math. Map Primary Indexes (PI) to BQ Clustering or MaxCompute Partitions.
+   - **Oracle to BigQuery/MaxCompute**: Remove `DUAL`, translate `ROWNUM` to `ROW_NUMBER()`, convert `CONNECT BY` to Recursive CTEs, and replace `NVL`/`DECODE` with standard `COALESCE`/`CASE`.
+   - **PostgreSQL to BigQuery/MaxCompute**: Translate `DISTINCT ON` to `QUALIFY` or Window Functions. Map JSONB operators to target JSON functions.
+4. **Performance Tuning**: Add explicit `PARTITION BY` and `CLUSTER BY` in DDL. Translate row-by-row updates into `MERGE` or `INSERT OVERWRITE` statements.
+5. **Output Generation**: Provide the translated SQL, DDL changes, compatibility warnings (e.g., precision loss in floats), and validation queries to verify source vs target data.
 
 ## Reference
 
-Read `references/dialect-matrix.md` for mapping guidance.
+Read `policies/sql-dialect-matrix.yaml` for mapping guidance.

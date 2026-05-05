@@ -5,10 +5,18 @@ import { scanBackendApiSignals } from '../backend/api-code-scanner';
 import { CommandArgs, CommandResult, PromptPackage } from '../core/types';
 import { renderRequestContext } from '../context/request-context';
 import { artifactPathFor, getNextStepHint } from '../workflow/workflow';
+import { getCodeContext } from '../code-index/indexer';
 
 const SYSTEM_PROMPT = `You are a bank-grade AI SDLC assistant embedded in VS Code Copilot.
 Work as a precise product, engineering, test, and data-development consultant.
 Always preserve user constraints, project evidence, policy packs, security, auditability, privacy, traceability, rollback, and testability.
+
+# Behavioral Guidelines (Karpathy Style)
+1. **Think Before Coding**: Don't assume. Don't hide confusion. Surface tradeoffs. State assumptions explicitly. If multiple interpretations exist, present them.
+2. **Simplicity First**: Minimum code that solves the problem. Nothing speculative. No features beyond what was asked. No abstractions for single-use code.
+3. **Surgical Changes**: Touch only what you must. Clean up only your own mess. Don't refactor things that aren't broken. Match existing style. Every changed line should trace directly to the user's request.
+4. **Goal-Driven Execution**: Define success criteria. Loop until verified. Transform tasks into verifiable goals.
+
 For complex tasks, recommend subagent delegation when useful, but keep the main output consolidated and actionable.`;
 
 const DEFAULT_CONSTRAINTS = [
@@ -70,7 +78,11 @@ async function buildPromptPackage(args: CommandArgs, command: string, title: str
     `agent-resources/prompts/output-schemas/${command}.md`
   ]) || defaultOutputSchema(command);
   const skills = await loadRelevantSkills(args.requestContext?.workspaceRoot, command);
+  const codeIndex = args.requestContext?.workspaceRoot
+    ? getCodeContext(args.requestContext.workspaceRoot)
+    : null;
   const context = [
+    codeIndex ? `## Codebase Structural Index\n${codeIndex.summary}` : '',
     `## Raw User Input\n${args.userPrompt || '(empty)'}`,
     `## Optimized User Intent\n${optimizeUserInput(command, args.userPrompt)}`,
     `## Request Context\n${renderRequestContext(args.requestContext)}`,
@@ -206,10 +218,37 @@ async function readOptionalResource(root: string | undefined, relativePaths: str
   return '';
 }
 
+/**
+ * Parse YAML-style frontmatter from a SKILL.md string.
+ * Returns key-value pairs from the frontmatter block (--- ... ---).
+ */
+function parseSkillFrontmatter(text: string): Record<string, string> {
+  const fm: Record<string, string> = {};
+  const match = text.match(/^---\s*\n([\s\S]*?)\n---/);
+  if (!match) return fm;
+  for (const line of match[1].split('\n')) {
+    const colonIdx = line.indexOf(':');
+    if (colonIdx < 0) continue;
+    const key = line.slice(0, colonIdx).trim();
+    const val = line.slice(colonIdx + 1).trim().replace(/^['"]|['"]$/g, '');
+    fm[key] = val;
+  }
+  return fm;
+}
+
+/**
+ * Normalize a command string for matching against skill metadata.
+ */
+function normalizeForMatch(s: string): string {
+  return s.replace(/[-_]/g, '').toLowerCase();
+}
+
 async function loadRelevantSkills(root: string | undefined, command: string): Promise<string> {
   if (!root) return '';
   const bases = ['.product-dev/skills', 'agent-resources/skills'];
   const chunks: string[] = [];
+  const cmdNorm = normalizeForMatch(command);
+
   for (const base of bases) {
     try {
       const dir = path.join(root, base);
@@ -219,7 +258,24 @@ async function loadRelevantSkills(root: string | undefined, command: string): Pr
         const p = path.join(dir, e.name, 'SKILL.md');
         const text = await fs.readFile(p, 'utf8').catch(() => '');
         if (!text) continue;
-        if (text.toLowerCase().includes(command.toLowerCase()) || text.toLowerCase().includes('backend') || text.toLowerCase().includes('api test')) {
+
+        // Parse frontmatter for structured matching
+        const fm = parseSkillFrontmatter(text);
+        const skillName = normalizeForMatch(fm['name'] || '');
+        const appliesTo = normalizeForMatch(fm['appliesTo'] || '');
+        const triggers = normalizeForMatch(fm['triggers'] || '');
+        const desc = normalizeForMatch(fm['description'] || '');
+
+        // Match against frontmatter fields: name, appliesTo, triggers, description
+        const matched =
+          skillName.includes(cmdNorm) ||
+          appliesTo.includes(cmdNorm) ||
+          triggers.includes(cmdNorm) ||
+          desc.includes(cmdNorm) ||
+          // Fallback: include skills that explicitly declare broad applicability
+          appliesTo.includes('all');
+
+        if (matched) {
           chunks.push(`### ${e.name}\n${text.slice(0, 7000)}`);
         }
       }
